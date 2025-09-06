@@ -4,6 +4,7 @@ from pathlib import Path
 from PyPDF2 import PdfReader
 import openai
 import requests
+import json
 
 PDF_DIR = "docs"
 PAGE_FILE = "page.file"
@@ -128,17 +129,25 @@ def ensure_pagefile():
     return update_pagefile(PDF_DIR, PAGE_FILE)
 
 def query_llama(prompt):
-    url = "http://localhost:11434"
-    #url = "http://localhost:11434/api/generate"
-    data = {"model": "llama3.2:latest", "prompt": prompt}
+    #url = "http://localhost:11434"
+    url = "http://localhost:11434/api/generate"
+    data = {"model": "GandalfBaum/llama3.1-claude3.7:latest", "prompt": prompt}
     resp = requests.post(url, json=data, stream=True)
     text = ""
     for line in resp.iter_lines():
-        if line:
-            chunk = line.decode("utf-8")
-            if chunk.startswith("{"):
-                obj = eval(chunk)
-                text += obj.get("response", "")
+        if not line:
+            continue
+
+        try:
+            obj = json.loads(line.decode("utf-8"))
+        except json.JSONDecodeError:
+            continue  # skip malformed lines
+
+        if "response" in obj:
+            text += obj["response"]   # collect partial response
+        if obj.get("done", False):
+            break
+
     return text
 
 def query_rag_llama3(query, index, chunks, k=TOPK):
