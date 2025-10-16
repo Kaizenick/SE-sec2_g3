@@ -13,9 +13,9 @@ app.use(express.json());
 
 // connect to MongoDB
 const mongoUri = process.env.MONGO_URI || "mongodb://localhost:27017/codeeats";
-mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log("✅ Connected to MongoDB"))
-  .catch((err) => console.error("MongoDB connect error:", err));
+//mongoose.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+ // .then(() => console.log("✅ Connected to MongoDB"))
+  //.catch((err) => console.error("MongoDB connect error:", err));
 
 // API routes
 app.use("/api/problems", problemsRouter);
