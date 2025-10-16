@@ -4,11 +4,13 @@ import requests
 
 BASE = os.environ.get("JUDGE0_URL", "http://104.236.56.159:2358")
 
+# Checks whether endpoint is up or not
 def test_api_alive():
     r = requests.get("http://104.236.56.159:2358")
     # It’s OK if the body is empty — just require a 200 OK
     assert r.status_code == 200, f"Root endpoint not OK: {r.status_code}"
 
+# checks whether the languages are 
 def test_languages():
     r = requests.get(f"{BASE}/languages")
     r.raise_for_status()
@@ -49,4 +51,48 @@ def test_node_sum():
     )
     result = _submit(node_id, js, "7,8")
     assert result.get("status", {}).get("description") == "Accepted"
+    assert result.get("stdout", "").strip() == "15"
+
+def test_java_sum():
+    # Java (OpenJDK) typical ids: 62, 91, or 108 depending on your Judge0 version
+    langs = requests.get(f"{BASE}/languages").json()
+    java_id = next((l["id"] for l in langs if "Java" in l["name"] and "OpenJDK" in l["name"]), None)
+    assert java_id is not None, "Java language not available on this Judge0"
+
+    java_code = """
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int a = sc.nextInt();
+        int b = sc.nextInt();
+        System.out.println(a + b);
+    }
+}
+""".strip()
+
+    result = _submit(java_id, java_code, "5 10")
+    assert result.get("status", {}).get("description") == "Accepted", f"Java test failed: {result}"
+    assert result.get("stdout", "").strip() == "15"
+
+
+def test_cpp_sum():
+    # C++ (GCC) typical ids: 54, 77, 105 depending on your Judge0 version
+    langs = requests.get(f"{BASE}/languages").json()
+    cpp_id = next((l["id"] for l in langs if "C++" in l["name"]), None)
+    assert cpp_id is not None, "C++ language not available on this Judge0"
+
+    cpp_code = r"""
+#include <iostream>
+using namespace std;
+int main() {
+    int a, b;
+    cin >> a >> b;
+    cout << a + b;
+    return 0;
+}
+""".strip()
+
+    result = _submit(cpp_id, cpp_code, "12 3")
+    assert result.get("status", {}).get("description") == "Accepted", f"C++ test failed: {result}"
     assert result.get("stdout", "").strip() == "15"
