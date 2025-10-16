@@ -1,11 +1,59 @@
-# Node.js dependencies
+# =========================
+# Node.js / Frontend
+# =========================
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
 # Environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Logs
-logs/
+# Build output
+dist/
+build/
+.next/
+out/
+
+# =========================
+# Python / Backend
+# =========================
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.eggs/
+*.pyo
+*.pyd
+*.so
+*.dll
 *.log
-npm-debug.log*
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+venv/
+env/
+ENV/
+*.sqlite3
 
+# =========================
+# OS / Editor / Misc
+# =========================
+# macOS Finder
+.DS_Store
+
+# VSCode / IDE settings
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# Git / Temporary
+# =========================
+.gitignore~
+*.bak
