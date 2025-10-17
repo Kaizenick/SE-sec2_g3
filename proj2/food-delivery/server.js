@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import session from 'express-session';
+import restaurantAuthRouter from './routes/restaurantAuth.js';
 
 import restaurantRouter from './routes/restaurants.js';
 import menuRouter from './routes/menu.js';
@@ -44,11 +46,27 @@ app.use((req, res, next) => {
   next();
 });
 
+const SESSION_SECRET = process.env.SESSION_SECRET || 'dev-secret-change-me';
+app.use(session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 1000 * 60 * 60 * 2
+  }
+}));
+
+
 // API routes
 app.use('/api/restaurants', restaurantRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
+app.use('/api/restaurant-auth', restaurantAuthRouter);
+
 
 // 404 handler for API
 app.use('/api', (req, res) => {
