@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import session from 'express-session';
 import restaurantAuthRouter from './routes/restaurantAuth.js';
-
+import driverRoutes from "./routes/driverRoutes.js";
 import restaurantRouter from './routes/restaurants.js';
 import menuRouter from './routes/menu.js';
 import cartRouter from './routes/cart.js';
@@ -66,7 +66,8 @@ app.use('/api/menu', menuRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/restaurant-auth', restaurantAuthRouter);
-
+app.use('/api/restaurant-auth', restaurantAuthRouter);
+app.use("/driver", driverRoutes);
 
 // 404 handler for API
 app.use('/api', (req, res) => {
