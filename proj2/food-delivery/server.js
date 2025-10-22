@@ -12,6 +12,7 @@ import restaurantRouter from './routes/restaurants.js';
 import menuRouter from './routes/menu.js';
 import cartRouter from './routes/cart.js';
 import orderRouter from './routes/orders.js';
+import customerAuthRouter from './routes/customerAuth.js';
 
 dotenv.config();
 
@@ -68,6 +69,8 @@ app.use('/api/orders', orderRouter);
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use("/driver", driverRoutes);
+app.use('/api/customer-auth', customerAuthRouter);
+
 
 // 404 handler for API
 app.use('/api', (req, res) => {
