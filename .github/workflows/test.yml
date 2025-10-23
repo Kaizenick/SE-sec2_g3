@@ -3,8 +3,12 @@ name: Run Jest Tests for Food Delivery
 on:
   push:
     branches: [ main ]
+    paths:
+      - 'proj2/food-delivery/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - 'proj2/food-delivery/**'
 
 jobs:
   test:
