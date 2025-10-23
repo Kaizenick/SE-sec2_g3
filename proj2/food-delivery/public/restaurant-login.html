@@ -35,7 +35,7 @@
       const data=await res.json();
       if(!res.ok)return msg(data.error||'Login failed');
       msg(data.message,true);
-      setTimeout(()=>location.href='/restaurant-welcome.html',700);
+      setTimeout(() => location.href = '/restaurant-dashboard.html', 1000);
     });
   </script>
 </body>

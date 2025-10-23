@@ -13,6 +13,7 @@ import menuRouter from './routes/menu.js';
 import cartRouter from './routes/cart.js';
 import orderRouter from './routes/orders.js';
 import customerAuthRouter from './routes/customerAuth.js';
+import restaurantDashboardRouter from './routes/restaurantDashboard.js';
 
 dotenv.config();
 
@@ -70,6 +71,7 @@ app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use("/driver", driverRoutes);
 app.use('/api/customer-auth', customerAuthRouter);
+app.use('/api/restaurant-dashboard', restaurantDashboardRouter);
 
 
 // 404 handler for API
