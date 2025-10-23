@@ -1,0 +1,32 @@
+name: Run Jest Tests for Food Delivery
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: |
+          cd proj2/food-delivery
+          npm install
+
+      - name: Run Jest tests
+        env:
+          NODE_ENV: test
+        run: |
+          cd proj2/food-delivery
+          node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand
