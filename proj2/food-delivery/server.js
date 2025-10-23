@@ -34,12 +34,14 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/food_d
 const PORT = process.env.PORT || 3000;
 
 mongoose.set('strictQuery', true);
+if (process.env.NODE_ENV !== 'test') {
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);
     process.exit(1);
   });
+}
 
 // Simple demo user middleware (no auth): attaches a demo userId
 app.use((req, res, next) => {
@@ -83,7 +85,10 @@ app.use('/api', (req, res) => {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+if (process.env.NODE_ENV !== 'test'){
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+export default app;
