@@ -69,6 +69,7 @@ app.use('/api/restaurants', restaurantRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
+console.log("✅ /api/orders route registered");
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use("/driver", driverRoutes);

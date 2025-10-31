@@ -15,9 +15,9 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// POST /api/orders (checkout current cart)
-router.post('/', async (req, res) => {
+// 🧩 Debug route entry point — temporary check
+router.post('/', async(req, res) => {
+  console.log("🔥 inside POST /api/orders handler");
   try {
     const cartItems = await CartItem.find({ userId: req.userId }).lean();
     if (cartItems.length === 0) return res.status(400).json({ error: 'Cart is empty' });
