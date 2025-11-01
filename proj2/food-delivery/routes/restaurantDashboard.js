@@ -88,5 +88,38 @@ router.put("/order/:id/status", requireRestaurant, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+//Fetch all orders for a given restaurant
+router.get("/orders", async (req, res) => {
+  try {
+    const { restaurantId } = req.query;
+    if (!restaurantId) {
+      return res.status(400).json({ error: "restaurantId is required" });
+    }
 
+    const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+//Update order status
+router.patch("/orders/:id/status", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "status is required" });
+    }
+
+    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updated) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 export default router;
