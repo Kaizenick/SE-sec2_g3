@@ -96,7 +96,7 @@ export default function TestList({ tests = [], results = {}, running }) {
                           whiteSpace: "pre-wrap",
                         }}
                       >
-                        {JSON.stringify(t.input)}
+                        {String(t.input)}
                       </code>
                     </div>
                     <div style={{ marginTop: 6 }}>
@@ -110,7 +110,7 @@ export default function TestList({ tests = [], results = {}, running }) {
                           whiteSpace: "pre-wrap",
                         }}
                       >
-                        {JSON.stringify(t.expected)}
+                        {String(t.expected)}
                       </code>
                     </div>
 
@@ -126,7 +126,7 @@ export default function TestList({ tests = [], results = {}, running }) {
                             whiteSpace: "pre-wrap",
                           }}
                         >
-                          {JSON.stringify(r.got)}
+                          {String(t.got)}
                         </code>
                       </div>
                     )}
