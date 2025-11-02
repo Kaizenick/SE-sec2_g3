@@ -1,19 +1,14 @@
-import request from "supertest";
-import mongoose from "mongoose";
-import app from "../../server.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { setupTestDB, closeTestDB } from "../helpers/testUtils.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent; // ✅ use session-persistent Supertest agent
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
 
 describe("POST /api/customer-auth/login (invalid credentials)", () => {
@@ -27,15 +22,16 @@ describe("POST /api/customer-auth/login (invalid credentials)", () => {
       address: "789 Elm Avenue",
     };
 
-    // Register the user
-    await request(app).post("/api/customer-auth/register").send(customer);
+    // 1️⃣ Register user
+    await agent.post("/api/customer-auth/register").send(customer).expect(201);
 
-    // Try to login with wrong password
-    const res = await request(app)
+    // 2️⃣ Try wrong password
+    const res = await agent
       .post("/api/customer-auth/login")
-      .send({ email: "bob@example.com", password: "wrongpass" });
+      .send({ email: "bob@example.com", password: "wrongpass" })
+      .expect(401);
 
-    expect(res.statusCode).toBe(401);
+    // 3️⃣ Validate response
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/invalid|incorrect/i);
   });

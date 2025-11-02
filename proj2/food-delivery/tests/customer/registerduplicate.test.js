@@ -1,23 +1,23 @@
-import request from "supertest";
-import mongoose from "mongoose";
-import app from "../../server.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import {
+  setupTestDB,
+  closeTestDB,
+} from "../helpers/testUtils.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent;
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
 
 describe("POST /api/customer-auth/register (duplicate)", () => {
   it("should return 409 if the email is already registered", async () => {
+    console.log("🚀 Starting Customer Duplicate Registration test");
+
     const customer = {
       name: "John Doe",
       email: "john@example.com",
@@ -27,17 +27,16 @@ describe("POST /api/customer-auth/register (duplicate)", () => {
       address: "123 Street",
     };
 
-    //Register once
-    await request(app).post("/api/customer-auth/register").send(customer);
+    // 1️⃣ First registration — should succeed
+    await agent.post("/api/customer-auth/register").send(customer).expect(201);
 
-    //Try registering again with the same email
-    const res = await request(app)
-      .post("/api/customer-auth/register")
-      .send(customer);
+    // 2️⃣ Second registration — should fail
+    const res = await agent.post("/api/customer-auth/register").send(customer);
 
-    console.log("Response body:",res.body);
+    console.log("📨 Response:", res.status, res.body);
 
     expect(res.statusCode).toBe(409);
+    expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/already registered/i);
   });
 });

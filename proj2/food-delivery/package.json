@@ -38,5 +38,13 @@
   },
   "devDependencies": {
     "cross-env": "^10.1.0"
-  }
+  },
+  "jest": {
+  "testEnvironment": "node",
+  "verbose": true,
+  "transform": {}
+  
+  
 }
+}
+

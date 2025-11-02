@@ -1,34 +1,32 @@
-import request from "supertest";
-import mongoose from "mongoose";
-import app from "../../server.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import { setupTestDB, closeTestDB } from "../helpers/testUtils.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent;
 
-  await request(app)
-    .post("/api/restaurant-auth/register")
-    .send({
-      name: "InvalidLogin",
-      email: "invalid@example.com",
-      password: "validpass",
-      cuisine: "Mexican",
-    });
+  // Register restaurant before testing login
+  await agent.post("/api/restaurant-auth/register").send({
+    name: "InvalidLogin",
+    email: "invalid@example.com",
+    password: "validpass",
+    cuisine: "Mexican",
+    address: "123 Taco Street, Raleigh, NC",
+  }).expect(201);
 });
+
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
-describe("Restaurant Login Invalid", () => {
+
+describe("POST /api/restaurant-auth/login (invalid credentials)", () => {
   it("should return 401 for wrong password", async () => {
-    const res = await request(app)
+    const res = await agent
       .post("/api/restaurant-auth/login")
-      .send({ email: "invalid@example.com", password: "wrongpass" });
-    expect(res.statusCode).toBe(401);
+      .send({ email: "invalid@example.com", password: "wrongpass" })
+      .expect(401);
+
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/invalid|incorrect/i);
   });

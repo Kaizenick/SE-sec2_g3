@@ -13,54 +13,112 @@ const sample = {
     {
       name: 'Spice Route Kitchen',
       cuisine: 'Indian',
-      imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d',
+      imageUrl: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=870&q=80',
       rating: 4.7,
       deliveryFee: 2.99,
       etaMins: 35,
+      address: '123 Curry Lane, Raleigh, NC',
       menu: [
-        { name: 'Butter Chicken', description: 'Creamy tomato sauce', price: 12.99, imageUrl: 'https://images.unsplash.com/photo-1604908812243-8a3d056e4a24' },
-        { name: 'Paneer Tikka', description: 'Grilled cottage cheese', price: 10.49, imageUrl: 'https://images.unsplash.com/photo-1604908553697-8cd0efb2a1f9' },
-        { name: 'Garlic Naan', description: 'Fresh baked naan with garlic', price: 3.49 }
-      ]
+        {
+          name: 'Butter Chicken',
+          description: 'Creamy tomato sauce',
+          price: 12.99,
+          imageUrl: 'https://plus.unsplash.com/premium_photo-1661419883163-bb4df1c10109?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Paneer Tikka',
+          description: 'Grilled cottage cheese',
+          price: 10.49,
+          imageUrl: 'https://images.unsplash.com/photo-1666001120694-3ebe8fd207be?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Garlic Naan',
+          description: 'Fresh baked naan with garlic',
+          price: 3.49,
+          imageUrl: 'https://images.unsplash.com/photo-1697155406014-04dc649b0953?auto=format&fit=crop&w=870&q=80',
+        },
+      ],
     },
     {
       name: 'Bella Italia',
       cuisine: 'Italian',
-      imageUrl: 'https://images.unsplash.com/photo-1541745537413-b804c42ea8c7',
+      imageUrl: 'https://images.unsplash.com/photo-1498579150354-977475b7ea0b?auto=format&fit=crop&w=870&q=80',
       rating: 4.6,
       deliveryFee: 3.49,
       etaMins: 30,
+      address: '789 Olive Street, Cary, NC',
       menu: [
-        { name: 'Margherita Pizza', description: 'Tomato, mozzarella, basil', price: 11.99 },
-        { name: 'Pasta Alfredo', description: 'Creamy alfredo sauce', price: 13.49 },
-        { name: 'Tiramisu', description: 'Classic dessert', price: 6.99 }
-      ]
+        {
+          name: 'Margherita Pizza',
+          description: 'Tomato, mozzarella, basil',
+          price: 11.99,
+          imageUrl: 'https://images.unsplash.com/photo-1601924582971-c9e8eafc0d9b?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Pasta Alfredo',
+          description: 'Creamy alfredo sauce',
+          price: 13.49,
+          imageUrl: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Tiramisu',
+          description: 'Classic dessert',
+          price: 6.99,
+          imageUrl: 'https://images.unsplash.com/photo-1605478601423-3a4c34c7f9ea?auto=format&fit=crop&w=870&q=80',
+        },
+      ],
     },
     {
       name: 'Sushi Zen',
       cuisine: 'Japanese',
-      imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947',
+      imageUrl: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=870&q=80',
       rating: 4.8,
       deliveryFee: 1.99,
       etaMins: 25,
+      address: '101 Sakura Avenue, Durham, NC',
       menu: [
-        { name: 'California Roll', description: 'Crab, avocado, cucumber', price: 8.99 },
-        { name: 'Salmon Nigiri', description: 'Fresh salmon over rice', price: 12.49 },
-        { name: 'Miso Soup', description: 'Traditional soup', price: 2.99 }
-      ]
-    }
-  ]
+        {
+          name: 'California Roll',
+          description: 'Crab, avocado, cucumber',
+          price: 8.99,
+          imageUrl: 'https://images.unsplash.com/photo-1553621042-f6e147245754?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Salmon Nigiri',
+          description: 'Fresh salmon over rice',
+          price: 12.49,
+          imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=870&q=80',
+        },
+        {
+          name: 'Miso Soup',
+          description: 'Traditional soup',
+          price: 2.99,
+          imageUrl: 'https://images.unsplash.com/photo-1627308595229-7830a5c91f9f?auto=format&fit=crop&w=870&q=80',
+        },
+      ],
+    },
+  ],
 };
 
 async function main() {
   await mongoose.connect(MONGODB_URI);
-  console.log('Connected to MongoDB for seeding');
+  console.log('✅ Connected to MongoDB for seeding');
 
-  await Promise.all([Restaurant.deleteMany({}), MenuItem.deleteMany({}), User.deleteMany({})]);
+  // Clear existing collections
+  await Promise.all([
+    Restaurant.deleteMany({}),
+    MenuItem.deleteMany({}),
+    User.deleteMany({}),
+  ]);
 
   // Demo user
-  await User.create({ _id: 'demo-user-1', name: 'Demo User', email: 'demo@example.com' });
+  await User.create({
+    _id: 'demo-user-1',
+    name: 'Demo User',
+    email: 'demo@example.com',
+  });
 
+  // Populate restaurants + menu items
   for (const r of sample.restaurants) {
     const created = await Restaurant.create({
       name: r.name,
@@ -68,23 +126,27 @@ async function main() {
       imageUrl: r.imageUrl,
       rating: r.rating,
       deliveryFee: r.deliveryFee,
-      etaMins: r.etaMins
+      etaMins: r.etaMins,
+      address: r.address, // ✅ added missing field
     });
+
     for (const m of r.menu) {
       await MenuItem.create({
         restaurantId: created._id,
         name: m.name,
         description: m.description,
         price: m.price,
-        imageUrl: m.imageUrl
+        imageUrl: m.imageUrl,
       });
     }
   }
-  console.log('Seed complete.');
+
+  console.log('🌱 Seed complete.');
   await mongoose.disconnect();
+  console.log('🔌 Disconnected from MongoDB');
 }
 
-main().catch(err => {
-  console.error(err);
+main().catch((err) => {
+  console.error('❌ Seed error:', err);
   process.exit(1);
 });

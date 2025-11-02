@@ -7,9 +7,9 @@ const router = express.Router();
 //Register new restaurant + admin
 router.post('/register', async (req, res) => {
   try {
-    const { name, cuisine, email, password } = req.body;
-    if (!name || !cuisine || !email || !password)
-      return res.status(400).json({ error: 'name, cuisine, email, and password required' });
+    const { name, cuisine, email, password, address } = req.body;
+    if (!name || !cuisine || !email || !password || !address)
+      return res.status(400).json({ error: 'name, cuisine, email, password and address required' });
 
     const exists = await RestaurantAdmin.findOne({ email });
     if (exists) return res.status(409).json({ error: 'Email already registered' });
@@ -19,7 +19,8 @@ router.post('/register', async (req, res) => {
       cuisine,
       rating: 4.5,
       deliveryFee: 0,
-      etaMins: 30
+      etaMins: 30,
+      address
     });
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -36,6 +37,7 @@ router.post('/register', async (req, res) => {
       admin: { email }
     });
   } catch (err) {
+    console.error("❌ Restaurant Registration Error:", err);
     res.status(500).json({ error: err.message });
   }
 });

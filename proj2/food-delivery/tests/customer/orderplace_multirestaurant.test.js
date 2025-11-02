@@ -1,30 +1,39 @@
-import request from "supertest";
-import app from "../../server.js";
+// tests/customer/orderplace_multirestaurant.test.js
+import {
+  setupTestDB,
+  closeTestDB,
+  registerAndLoginCustomer,
+} from "../helpers/testUtils.js";
+
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import CartItem from "../../models/CartItem.js";
 import MenuItem from "../../models/MenuItem.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent;
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
 
 describe("POST /api/orders (Multi-Restaurant Cart)", () => {
   it("should return 400 if cart has items from multiple restaurants", async () => {
-    const customerId = "demo-user-1";
-    //Create two restaurant IDs
+    console.log("🚀 Starting Multi-Restaurant Cart test");
+
+    // 1️⃣ Register + login real customer (via helper)
+    const { customer } = await registerAndLoginCustomer(agent);
+    const customerId = customer._id.toString();
+    console.log("👤 Logged-in customer:", customerId);
+
+    // 2️⃣ Create two different restaurants (ObjectIds only — not needed in DB)
     const restaurant1 = new mongoose.Types.ObjectId();
     const restaurant2 = new mongoose.Types.ObjectId();
-    //Add two menu items under different restaurants
+
+    // 3️⃣ Create menu items linked to each restaurant
     const menuItem1 = await MenuItem.create({
       name: "Pizza",
       price: 12,
@@ -35,17 +44,32 @@ describe("POST /api/orders (Multi-Restaurant Cart)", () => {
       price: 10,
       restaurantId: restaurant2,
     });
-    //Add both to cart for same user
-    await CartItem.create([
-      { userId: customerId, restaurantId: restaurant1, menuItemId: menuItem1._id, quantity: 1 },
-      { userId: customerId, restaurantId: restaurant2, menuItemId: menuItem2._id, quantity: 2 },
-    ]);
-    //Attempt to place order
-    const res = await request(app)
-      .post("/api/orders")
-      .send({})
-      .expect(400);
 
+    // 4️⃣ Add both to the customer’s cart
+    await CartItem.create([
+      {
+        userId: customerId,
+        restaurantId: restaurant1,
+        menuItemId: menuItem1._id,
+        quantity: 1,
+      },
+      {
+        userId: customerId,
+        restaurantId: restaurant2,
+        menuItemId: menuItem2._id,
+        quantity: 2,
+      },
+    ]);
+
+    const cartCount = await CartItem.countDocuments({ userId: customerId });
+    console.log("🛒 Cart items inserted:", cartCount);
+
+    // 5️⃣ Place order — should fail (400) since multiple restaurants
+    const res = await agent.post("/api/orders").send({});
+    console.log("📨 Response status:", res.status);
+    console.log("📨 Response body:", res.body);
+
+    expect(res.status).toBe(400);
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/single restaurant/i);
   });

@@ -1,28 +1,36 @@
-import request from "supertest";
-import app from "../../server.js";
-import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import {
+  setupTestDB,
+  closeTestDB,
+  registerAndLoginCustomer,
+} from "../helpers/testUtils.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent;
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
 
 describe("POST /api/orders (Empty Cart)", () => {
-  it("should return 400 when cart is empty", async () => {
-    const res = await request(app)
-      .post("/api/orders")
-      .send({})
-      .expect(400);
+  it("should return 400 when cart is empty after real register + login", async () => {
+    console.log("🚀 Starting Empty Cart test");
 
+    // 1️⃣ Register and log in a real customer using the helper
+    const { customer } = await registerAndLoginCustomer(agent);
+    console.log("👤 Logged in as:", customer._id);
+
+    // 2️⃣ Attempt to place an order with an empty cart
+    const res = await agent.post("/api/orders").send({});
+
+    console.log("📨 Response status:", res.status);
+    console.log("📨 Response body:", res.body);
+
+    // 3️⃣ Assert
+    expect(res.status).toBe(400);
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/cart is empty/i);
   });

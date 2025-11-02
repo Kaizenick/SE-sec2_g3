@@ -1,19 +1,19 @@
-import request from "supertest";
-import mongoose from "mongoose";
-import app from "../../server.js";
-import { MongoMemoryServer } from "mongodb-memory-server";
+import {
+  setupTestDB,
+  closeTestDB,
+} from "../helpers/testUtils.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  const uri = mongoServer.getUri();
-  await mongoose.connect(uri);
+  const setup = await setupTestDB();
+  agent = setup.agent;
 });
+
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
+
 describe("Restaurant Duplicate Registration", () => {
   it("should return 409 if restaurant already exists", async () => {
     const restaurant = {
@@ -21,12 +21,18 @@ describe("Restaurant Duplicate Registration", () => {
       email: "duplicate@example.com",
       password: "test123",
       cuisine: "Fusion",
+      address: "123 Test Street, Raleigh, NC",
     };
-    await request(app).post("/api/restaurant-auth/register").send(restaurant);
-    const res = await request(app)
-      .post("/api/restaurant-auth/register")
-      .send(restaurant);
-    expect(res.statusCode).toBe(409);
+
+    // 1️⃣ First registration — should succeed (201)
+    await agent.post("/api/restaurant-auth/register").send(restaurant).expect(201);
+
+    // 2️⃣ Second registration — should fail (409 Conflict)
+    const res = await agent.post("/api/restaurant-auth/register").send(restaurant);
+
+    console.log("📨 Duplicate register response:", res.status, res.body);
+
+    expect(res.status).toBe(409);
     expect(res.body).toHaveProperty("error");
     expect(res.body.error).toMatch(/already registered|exists/i);
   });

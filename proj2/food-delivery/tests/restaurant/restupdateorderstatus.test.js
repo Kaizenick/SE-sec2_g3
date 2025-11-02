@@ -1,40 +1,54 @@
-import request from "supertest";
-import app from "../../server.js";
+import {
+  setupTestDB,
+  closeTestDB,
+  registerAndLoginRestaurant,
+} from "../helpers/testUtils.js";
+
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import Order from "../../models/Order.js";
 
-let mongoServer;
+let agent;
 
 beforeAll(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  await mongoose.connect(mongoServer.getUri());
+  const setup = await setupTestDB();
+  agent = setup.agent;
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
-  await mongoServer.stop();
+  await closeTestDB();
 });
 
 describe("PATCH /api/restaurant-dashboard/orders/:id/status (Restaurant updates order)", () => {
   it("should update an order status successfully", async () => {
-    const restaurantId = new mongoose.Types.ObjectId();
-    const menuItemId = new mongoose.Types.ObjectId(); // 🆕 Added
+    console.log("🚀 Starting Restaurant Order Update test");
+
+    // 1️⃣ Register + Login a real restaurant to get ID
+    const { restaurant } = await registerAndLoginRestaurant(agent);
+    console.log("🏢 Logged in restaurant:", restaurant);
+
+    // 2️⃣ Create a dummy customer + order
+    const userId = new mongoose.Types.ObjectId();
+    const menuItemId = new mongoose.Types.ObjectId();
 
     const order = await Order.create({
-      userId: "demo-user-1",
-      restaurantId,
+      userId,
+      restaurantId: restaurant._id,
       items: [{ menuItemId, name: "Burger", price: 9.99, quantity: 1 }],
       subtotal: 9.99,
       total: 9.99,
       status: "placed",
     });
+    console.log("📦 Created order:", order._id.toString());
 
-    const res = await request(app)
+    // 3️⃣ Send PATCH request to update order status
+    const res = await agent
       .patch(`/api/restaurant-dashboard/orders/${order._id}/status`)
-      .send({ status: "accepted" })
-      .expect(200);
+      .send({ status: "accepted" });
 
+    console.log("📨 Response:", res.status, res.body);
+
+    // 4️⃣ Assertions
+    expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("status", "accepted");
   });
 });
