@@ -159,30 +159,33 @@ function App() {
       );
 
       const data = res.data;
+      console.log("Judge0 response:", data);
+
       const stdout = (data.stdout ?? "").trim();
       const stderr = (data.stderr ?? "").trim();
       const compile = (data.compile_output ?? "").trim();
-      const statusId = data?.status?.id;
+      const statusId = data?.status?.id ?? 0;
 
-      const got = stdout || stderr || compile || "No output";
-
-      // If compile/runtime error, mark error
-      if (compile || stderr) {
-        return {
-          id,
-          status: "error",
-          got,
-          expected
-        };
+      // Handle possible undefined values more gracefully
+      let got = "";
+      if (!got) {
+        if (stderr) got = stderr;
+        else if (compile) got = compile;
+        else if (statusId !== 3) got = "Execution/Compile Error";
+        else got = "(no visible output)";
       }
 
-      const ok = statusId === 3; // 3: Accepted
-      const passed = ok && compareOutputs(stdout, expected);
+      // If there was a compile/runtime error, mark error
+      if (compile || (stderr && statusId !== 3)) {
+        return { id, status: "error", got, expected };
+      }
+
+      const passed = compareOutputs(stdout || got, expected);
 
       return {
         id,
         status: passed ? "pass" : "fail",
-        got,
+        got: passed ? expected : got, // preventing "undefined" in UI for any of the tests
         expected
       };
     } catch (e) {

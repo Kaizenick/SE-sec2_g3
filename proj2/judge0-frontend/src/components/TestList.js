@@ -45,16 +45,19 @@ export default function TestList({ tests = [], results = {}, running }) {
           const isErr = status === "error";
 
           const badge =
-            status === "pass"
-              ? "✅"
-              : status === "fail"
-              ? "❌"
-              : status === "error"
-              ? "⚠️"
-              : "⏳";
+            isPass ? "✅" : isFail ? "❌" : isErr ? "⚠️" : "⏳";
 
           const rightTextColor =
             isPass ? "#00ff99" : isFail ? "#ff6b6b" : isErr ? "#ffd166" : "#97b3c7";
+
+          const boxGlow =
+            isPass
+              ? "0 0 6px rgba(0,255,179,0.3)"
+              : isFail
+                ? "0 0 6px rgba(255,107,107,0.3)"
+                : isErr
+                  ? "0 0 6px rgba(255,209,102,0.3)"
+                  : "none";
 
           return (
             <li
@@ -66,9 +69,11 @@ export default function TestList({ tests = [], results = {}, running }) {
                 padding: "12px 14px",
                 borderTop: "1px solid #132232",
                 background: "transparent",
+                boxShadow: boxGlow
               }}
             >
               <div>
+                {/* Title Row */}
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{ fontSize: 18 }}>{badge}</span>
                   <span style={{ fontWeight: 600, color: "#d9f1ff" }}>
@@ -76,6 +81,7 @@ export default function TestList({ tests = [], results = {}, running }) {
                   </span>
                 </div>
 
+                {/* Always show Input/Expected/Got */}
                 {t.unlocked ? (
                   <div
                     style={{
@@ -113,8 +119,7 @@ export default function TestList({ tests = [], results = {}, running }) {
                         {String(t.expected)}
                       </code>
                     </div>
-
-                    {r && (r.got ?? "") !== "" && (
+                    {r && (
                       <div style={{ marginTop: 6 }}>
                         <span style={{ color: "#c9e7ff" }}>Got:</span>{" "}
                         <code
@@ -124,43 +129,49 @@ export default function TestList({ tests = [], results = {}, running }) {
                             borderRadius: 8,
                             padding: "2px 6px",
                             whiteSpace: "pre-wrap",
+                            color: isErr
+                              ? "#ffd166"
+                              : isFail
+                                ? "#ff6b6b"
+                                : "#00ff99",
                           }}
                         >
-                          {String(t.got)}
+                          {r.got || "(no output)"}
                         </code>
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div
-                    style={{
-                      marginTop: 8,
-                      fontSize: 13,
-                      color: "#97b3c7",
-                      opacity: 0.85,
-                    }}
-                  >
-                    Hidden input and expected output.
-                  </div>
-                )}
-              </div>
-
+              ) : (
               <div
                 style={{
-                  minWidth: 80,
-                  textAlign: "right",
-                  fontWeight: 700,
-                  color: rightTextColor,
-                  letterSpacing: 0.25,
-                  alignSelf: "start",
+                  marginTop: 8,
+                  fontSize: 13,
+                  color: "#97b3c7",
+                  opacity: 0.85,
                 }}
               >
-                {status.toUpperCase()}
+                Hidden input and expected output.
               </div>
+                )}
+            </div>
+
+              {/* Status */ }
+          <div
+            style={{
+              minWidth: 80,
+              textAlign: "right",
+              fontWeight: 700,
+              color: rightTextColor,
+              letterSpacing: 0.25,
+              alignSelf: "start",
+            }}
+          >
+            {status.toUpperCase()}
+          </div>
             </li>
-          );
+      );
         })}
-      </ul>
-    </div>
+    </ul>
+    </div >
   );
 }
