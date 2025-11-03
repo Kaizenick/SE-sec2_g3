@@ -1,4 +1,5 @@
 import express from "express";
+import mongoose from "mongoose";
 import Order from "../models/Order.js";
 import CartItem from "../models/CartItem.js";
 import Restaurant from "../models/Restaurant.js";
@@ -6,7 +7,7 @@ import MenuItem from "../models/MenuItem.js";
 
 const router = express.Router();
 
-// ✅ GET /api/orders  → fetch all orders for the logged-in customer
+// GET /api/orders → fetch all orders for the logged-in customer
 router.get("/", async (req, res) => {
   try {
     const customerId = req.session.customerId;
@@ -19,34 +20,70 @@ router.get("/", async (req, res) => {
   }
 });
 
-// ✅ POST /api/orders  → place a new order from the cart
+// POST /api/orders → place a new order (supports subset via { itemIds })
 router.post("/", async (req, res) => {
   try {
     const customerId = req.session.customerId;
     if (!customerId) return res.status(401).json({ error: "Customer not logged in" });
 
-    const cartItems = await CartItem.find({ userId: customerId }).lean();
-    if (cartItems.length === 0) return res.status(400).json({ error: "Cart is empty" });
+    // Optional subset: { itemIds: [...] }
+    let itemIds = Array.isArray(req.body?.itemIds) ? req.body.itemIds : null;
+    if (itemIds && itemIds.length) {
+      // cast to ObjectId for reliable $in match
+      itemIds = itemIds
+        .filter(Boolean)
+        .map(id => {
+          try { return new mongoose.Types.ObjectId(id); }
+          catch { return null; }
+        })
+        .filter(Boolean);
+      if (!itemIds.length) {
+        return res.status(400).json({ error: "No matching items found to checkout" });
+      }
+    }
 
-    // Ensure all items are from the same restaurant
-    const restaurantIds = new Set(cartItems.map(ci => String(ci.restaurantId)));
-    if (restaurantIds.size > 1)
-      return res.status(400).json({ error: "Cart must contain items from a single restaurant" });
+    // Build query: all items vs only selected ones
+    const cartQuery = itemIds?.length
+      ? { userId: customerId, _id: { $in: itemIds } }
+      : { userId: customerId };
 
-    const restaurantId = cartItems[0].restaurantId;
-    const restaurant = await Restaurant.findById(restaurantId);
-    if (!restaurant) return res.status(404).json({ error: "Restaurant not found" });
+    const cartItems = await CartItem.find(cartQuery).lean();
+    if (!cartItems.length) {
+      return res.status(400).json({
+        error: itemIds?.length ? "No matching items found to checkout" : "Cart is empty",
+      });
+    }
 
-    // Re-fetch menu items for accurate prices
+    // Authoritative menu data (names, prices, and restaurant ownership)
     const menuIds = cartItems.map(ci => ci.menuItemId);
-    const menuItems = await MenuItem.find({ _id: { $in: menuIds } });
+    const menuItems = await MenuItem.find({ _id: { $in: menuIds } }).lean();
     const menuMap = new Map(menuItems.map(m => [String(m._id), m]));
 
+    // Derive restaurantIds from MenuItem docs (robust even if CartItem.restaurantId is missing)
+    const restIdSet = new Set(
+      cartItems.map(ci => {
+        const mi = menuMap.get(String(ci.menuItemId));
+        return mi?.restaurantId ? String(mi.restaurantId) : undefined;
+      }).filter(Boolean)
+    );
+
+    if (!restIdSet.size) {
+      return res.status(400).json({ error: "Unable to determine restaurant for selected items" });
+    }
+    if (restIdSet.size > 1) {
+      return res.status(400).json({ error: "Selected items must be from a single restaurant" });
+    }
+
+    const restaurantId = [...restIdSet][0];
+    const restaurant = await Restaurant.findById(restaurantId).lean();
+    if (!restaurant) return res.status(404).json({ error: "Restaurant not found" });
+
+    // Build order lines and compute subtotal from authoritative menu data
     let subtotal = 0;
     const items = cartItems.map(ci => {
       const mi = menuMap.get(String(ci.menuItemId));
-      const price = mi?.price ?? 0;
-      const qty = ci.quantity;
+      const price = Number(mi?.price ?? 0);
+      const qty = Number(ci.quantity ?? 1);
       subtotal += price * qty;
       return {
         menuItemId: ci.menuItemId,
@@ -56,10 +93,9 @@ router.post("/", async (req, res) => {
       };
     });
 
-    const deliveryFee = restaurant.deliveryFee ?? 0;
+    const deliveryFee = Number(restaurant.deliveryFee ?? 0);
     const total = subtotal + deliveryFee;
 
-    // ✅ Create order
     const order = await Order.create({
       userId: customerId,
       restaurantId,
@@ -70,11 +106,17 @@ router.post("/", async (req, res) => {
       status: "placed",
     });
 
-    // ✅ Clear customer's cart
-    await CartItem.deleteMany({ userId: customerId });
+    // Remove only the checked-out items when subset was provided; otherwise clear entire cart
+    if (itemIds?.length) {
+      await CartItem.deleteMany({ userId: customerId, _id: { $in: itemIds } });
+    } else {
+      await CartItem.deleteMany({ userId: customerId });
+    }
 
-    res.status(201).json(order);
+    return res.status(201).json(order);
   } catch (err) {
+    // Optional: log diagnostics while developing
+    // console.error("Order error:", err);
     res.status(500).json({ error: err.message });
   }
 });
