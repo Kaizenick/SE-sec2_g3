@@ -170,7 +170,7 @@ async function main(){
   }
 
   if (!await User.findOne({ email: "demo@example.com" })) {
-    await User.create({ name: "Demo User", email: "demo@example.com" });
+    await User.create({_id: "demo-user-1", name: "Demo User", email: "demo@example.com" });
     console.log("👤 Created demo user demo@example.com");
   }
 
