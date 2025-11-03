@@ -18,7 +18,9 @@ router.post("/register", async (req, res) => {
     const auth = new DriverAuth({ email, password: hashed, driverId: driver._id });
     await auth.save();
 
-    res.redirect("/driver-login.html");
+    // res.redirect("/driver-login.html");
+    res.json({ message: "Driver registered successfully" });
+
   } catch (err) {
     console.error("Driver Registration Error:", err);
     res.status(500).send("Error registering driver: " + err.message);

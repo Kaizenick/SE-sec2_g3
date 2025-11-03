@@ -79,17 +79,19 @@ app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
 console.log("✅ /api/orders route registered");
 app.use('/api/restaurant-auth', restaurantAuthRouter);
-app.use("/driver", driverRoutes);
+app.use("/api/driver", driverRoutes);
 app.use('/api/customer-auth', customerAuthRouter);
 app.use('/api/restaurant-dashboard', restaurantDashboardRouter);
 
-app.use('/driver', driverDashboardRoutes);
+app.use('/api/driver', driverDashboardRoutes);
 
 
 // 404 handler for API
 app.use('/api', (req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
+
+
 
 // Fallback for SPA-style links (optional)
 app.get('*', (req, res) => {
