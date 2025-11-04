@@ -77,14 +77,14 @@ app.use('/api/restaurants', restaurantRouter);
 app.use('/api/menu', menuRouter);
 app.use('/api/cart', cartRouter);
 app.use('/api/orders', orderRouter);
-console.log("✅ /api/orders route registered");
+
 app.use('/api/restaurant-auth', restaurantAuthRouter);
 app.use("/api/driver", driverRoutes);
 app.use('/api/customer-auth', customerAuthRouter);
 app.use('/api/restaurant-dashboard', restaurantDashboardRouter);
 
 app.use('/api/driver', driverDashboardRoutes);
-
+console.log("✅ /api/orders route registered");
 
 // 404 handler for API
 app.use('/api', (req, res) => {
