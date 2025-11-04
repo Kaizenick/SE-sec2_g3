@@ -32,6 +32,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 app.use(cors({ origin: true, credentials: true }));
+app.options('/api/orders', cors({ origin: true, credentials: true }));
+app.options('/api/orders/:id', cors({ origin: true, credentials: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // -----------------------------------------------

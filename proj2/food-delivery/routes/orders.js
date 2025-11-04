@@ -121,5 +121,34 @@ router.post("/", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// DELETE /api/orders -> delete ALL orders for current customer
+router.delete("/", async (req, res) => {
+  try {
+    const customerId = req.session.customerId;
+    if (!customerId) return res.status(401).json({ error: "Not logged in" });
+
+    await Order.deleteMany({ userId: customerId });
+    return res.json({ ok: true, message: "Order history cleared" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/orders/:id -> delete ONE order (owned by current customer)
+router.delete("/:id", async (req, res) => {
+  try {
+    const customerId = req.session.customerId;
+    if (!customerId) return res.status(401).json({ error: "Not logged in" });
+
+    const { id } = req.params;
+    const result = await Order.deleteOne({ _id: id, userId: customerId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+    return res.json({ ok: true, message: "Order deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 export default router;
