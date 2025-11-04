@@ -255,7 +255,7 @@
           return null;
         }
         return await res.json();
-      } catch(e) {
+      } catch (e) {
         console.error('Error fetching restaurant', e);
         return null;
       }
@@ -306,17 +306,17 @@
     }
 
     // ---- Render ----
-    function renderSummary(groups){
-  if (!groups.length){ summaryEl.innerHTML = ''; return; }
-  const grand = groups.reduce((a,g)=>a+g.subtotal,0);
-  const sel = selectedRestaurantId ? groups.find(g => g.restaurantId === selectedRestaurantId) : null;
+    function renderSummary(groups) {
+      if (!groups.length) { summaryEl.innerHTML = ''; return; }
+      const grand = groups.reduce((a, g) => a + g.subtotal, 0);
+      const sel = selectedRestaurantId ? groups.find(g => g.restaurantId === selectedRestaurantId) : null;
 
-  let disableCheckout = !sel;
-  if (sel && sel.hasUnavailable) disableCheckout = true;
+      let disableCheckout = !sel;
+      if (sel && sel.hasUnavailable) disableCheckout = true;
 
-  checkoutBtn.disabled = disableCheckout;
+      checkoutBtn.disabled = disableCheckout;
 
-  summaryEl.innerHTML = `
+      summaryEl.innerHTML = `
     <div class="summary-card p-3 mt-2">
       <div class="d-flex justify-content-between">
         <span class="fw-semibold">Items total</span>
@@ -334,30 +334,30 @@
       ` : ''}
       <div class="text-secondary small mt-2">Delivery fees are per-restaurant and added at checkout.</div>
     </div>`;
-}
+    }
 
-    function renderGroups(groups){
-  if (!groups.length){
-    groupsEl.innerHTML = `<div class="alert alert-light text-dark shadow-sm">Your cart is empty.</div>`;
-    summaryEl.innerHTML = '';
-    setCartBadge(0);
-    return;
-  }
+    function renderGroups(groups) {
+      if (!groups.length) {
+        groupsEl.innerHTML = `<div class="alert alert-light text-dark shadow-sm">Your cart is empty.</div>`;
+        summaryEl.innerHTML = '';
+        setCartBadge(0);
+        return;
+      }
 
-  const totalItems = groups.reduce((a,g)=>a+g.items.length,0);
-  setCartBadge(totalItems);
+      const totalItems = groups.reduce((a, g) => a + g.items.length, 0);
+      setCartBadge(totalItems);
 
-  groupsEl.innerHTML = groups.map(g => {
-    const itemsHtml = g.items.map(i => {
-      const m = i.menuItemId || {};
-      const price = Number(m.price || 0);
-      const qty = Number(i.quantity || 1);
-      const line = price * qty;
-      const img = m.imageUrl || 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800&auto=format&fit=crop';
-      const name = m.name || 'Item';
-      const unavailable = m.isAvailable === false;
+      groupsEl.innerHTML = groups.map(g => {
+        const itemsHtml = g.items.map(i => {
+          const m = i.menuItemId || {};
+          const price = Number(m.price || 0);
+          const qty = Number(i.quantity || 1);
+          const line = price * qty;
+          const img = m.imageUrl || 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800&auto=format&fit=crop';
+          const name = m.name || 'Item';
+          const unavailable = m.isAvailable === false;
 
-      return `
+          return `
         <div class="p-3 border-bottom ${unavailable ? 'opacity-50' : ''}">
           <div class="d-flex align-items-center gap-3">
             <img class="item-thumb" src="${img}" alt="${name}">
@@ -379,19 +379,19 @@
             </div>
           </div>
         </div>`;
-    }).join('');
+        }).join('');
 
-    const hasUnavailable = g.items.some(i => i.menuItemId?.isAvailable === false);
-    g.hasUnavailable = hasUnavailable;
+        const hasUnavailable = g.items.some(i => i.menuItemId?.isAvailable === false);
+        g.hasUnavailable = hasUnavailable;
 
-    const metaBits = [];
-    if (g.eta) metaBits.push(`${g.eta} min`);
-    if (typeof g.fee === 'number') metaBits.push(`$${g.fee.toFixed(2)} delivery`);
-    const meta = metaBits.join(' • ');
+        const metaBits = [];
+        if (g.eta) metaBits.push(`${g.eta} min`);
+        if (typeof g.fee === 'number') metaBits.push(`$${g.fee.toFixed(2)} delivery`);
+        const meta = metaBits.join(' • ');
 
-    const checked = selectedRestaurantId === g.restaurantId ? 'checked' : '';
+        const checked = selectedRestaurantId === g.restaurantId ? 'checked' : '';
 
-    return `
+        return `
       <div class="group-card">
         <div class="group-header p-3 d-flex justify-content-between align-items-center">
           <div class="d-flex align-items-center gap-3">
@@ -412,10 +412,10 @@
           <div class="fw-bold">${money(g.subtotal)}</div>
         </div>
       </div>`;
-  }).join('');
+      }).join('');
 
-  renderSummary(groups);
-}
+      renderSummary(groups);
+    }
 
     // ---- Actions ----
     async function updateQty(id, qty) {
@@ -446,29 +446,27 @@
         return;
       }
       const group = cachedGroups.find(g => g.restaurantId === selectedRestaurantId);
-      if (!group || !group.items?.length){
-        showAlert('warning','Selected restaurant has no items.');
+      if (!group || !group.items?.length) {
+        showAlert('warning', 'Selected restaurant has no items.');
         return;
       }
       const itemIds = group.items.map(i => String(i._id));
-      const res = await fetch(`${API_BASE}/orders`, {
-        method:'POST',
-        headers:{ 'Content-Type': 'application/json' },
-        credentials:'include',
-        body: JSON.stringify({ itemIds }) // 🔑 only convert these items into an order
-      });
-      const data = await res.json().catch(()=>({}));
-      if (res.status === 201 || data?.ok){
-      showAlert('success', `Order placed from ${group.name}!`);
-      selectedRestaurantId = null;
-      init();
-      setTimeout(()=>location.href='/orders.html', 600);
-    } else if (data.unavailableItems) {
-      showAlert('danger', `Some items are unavailable:\n${data.unavailableItems.join(', ')}`);
-      init(); // reload cart to reflect new statuses
-    } else {
-      showAlert('danger', 'Error: ' + (data.error || 'Unable to checkout'));
-    }
+      
+      const qs = new URLSearchParams({ itemIds: itemIds.join(',') }).toString();
+      location.href = `/payment.html?${qs}`;
+
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 201 || data?.ok) {
+        showAlert('success', `Order placed from ${group.name}!`);
+        selectedRestaurantId = null;
+        init();
+        setTimeout(() => location.href = '/orders.html', 600);
+      } else if (data.unavailableItems) {
+        showAlert('danger', `Some items are unavailable:\n${data.unavailableItems.join(', ')}`);
+        init(); // reload cart to reflect new statuses
+      } else {
+        showAlert('danger', 'Error: ' + (data.error || 'Unable to checkout'));
+      }
 
     }
 
