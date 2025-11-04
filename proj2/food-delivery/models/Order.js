@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema({
   total: Number,
   status: {
     type: String,
-    enum: ['placed', 'preparing', 'out_for_delivery', 'delivered'],
+    enum: ['placed', 'preparing', 'ready_for_pickup', 'out_for_delivery', 'delivered'],
     default: 'placed'
   },
   // separate payment tracking

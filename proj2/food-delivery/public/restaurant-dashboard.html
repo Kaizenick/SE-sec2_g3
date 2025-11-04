@@ -118,6 +118,11 @@
       <ul class="nav nav-tabs px-4 pt-3" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard"
             type="button">Dashboard</button></li>
+        <li class="nav-item">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#orders" type="button">Incoming Orders</button>
+        </li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#delivered"
+            type="button">Delivered Orders</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile"
             type="button">Profile</button></li>
       </ul>
@@ -142,9 +147,18 @@
           </div>
           <button id="addItem" class="btn btn-black w-100 mb-4">Add Menu Item</button>
           <ul id="menuList" class="list-group mb-4"></ul>
+        </div>
 
+        <!-- INCOMING ORDERS -->
+        <div class="tab-pane fade" id="orders">
           <h4 class="section-title">🧾 Incoming Orders</h4>
           <div id="orderList"></div>
+        </div>
+
+        <!-- DELIVERED ORDERS TAB -->
+        <div class="tab-pane fade" id="delivered">
+          <h4 class="section-title">✅ Delivered Orders</h4>
+          <div id="deliveredList"></div>
         </div>
 
         <!-- PROFILE -->
@@ -288,6 +302,12 @@
         setWelcome(data.restaurantName || "Restaurant");
         updateAuthButton(true);
         renderMenu(data.menuItems || []);
+        const allOrders = data.orders || [];
+        const activeOrders = allOrders.filter(o => o.status !== 'delivered');
+        const deliveredOrders = allOrders.filter(o => o.status === 'delivered');
+        renderOrders(activeOrders);
+        renderDelivered(deliveredOrders);
+
       } else {
         console.warn("⚠️ Dashboard data error:", data);
         document.getElementById("welcomePill").textContent = "Not logged in";
@@ -339,6 +359,100 @@
     }
 
     loadDashboard();
+
+    function renderOrders(orders) {
+      const wrap = document.getElementById("orderList");
+      if (!orders || orders.length === 0) {
+        wrap.innerHTML = '<div class="alert alert-light text-dark">No incoming orders yet.</div>';
+        return;
+      }
+      wrap.innerHTML = orders.map(o => {
+        const disabled = o.status === 'out_for_delivery' ? 'disabled' : '';
+        const itemsHtml = (o.items || []).map(it => `
+      <div class="d-flex justify-content-between">
+        <div>${it.name} x${it.quantity}</div>
+        <div>$${(Number(it.price || 0) * Number(it.quantity || 1)).toFixed(2)}</div>
+      </div>`).join('');
+
+        const statusBadge = `<span class="badge bg-info text-uppercase">${(o.status || 'placed').replaceAll('_', ' ')}</span>`;
+
+        return `
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-semibold">Order #${o._id}</div>
+              <div class="text-secondary small">${new Date(o.createdAt).toLocaleString()}</div>
+              <div class="mt-2">${statusBadge}</div>
+            </div>
+            <div class="text-end">
+              <div>Subtotal: <strong>$${Number(o.subtotal || 0).toFixed(2)}</strong></div>
+              <div>Delivery: <strong>$${Number(o.deliveryFee || 0).toFixed(2)}</strong></div>
+              <div>Total: <span class="fs-5 fw-bold">$${Number(o.total || 0).toFixed(2)}</span></div>
+            </div>
+          </div>
+          <hr class="my-2">
+            ${itemsHtml}
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" ${disabled} onclick="updateOrderStatus('${o._id}','preparing')">Mark Preparing</button>
+              <button class="btn btn-sm btn-warning" ${disabled} onclick="updateOrderStatus('${o._id}','ready_for_pickup')">Ready for Pickup</button>
+              <button class="btn btn-sm btn-outline-primary" ${disabled} onclick="updateOrderStatus('${o._id}','out_for_delivery')">Out for Delivery</button>
+            </div>
+        </div>
+      </div>`;
+      }).join('');
+    }
+
+    function renderDelivered(orders) {
+      const wrap = document.getElementById("deliveredList");
+      if (!orders || orders.length === 0) {
+        wrap.innerHTML = '<div class="alert alert-light text-dark">No delivered orders yet.</div>';
+        return;
+      }
+      wrap.innerHTML = orders.map(o => {
+        const itemsHtml = (o.items || []).map(it => `
+      <div class="d-flex justify-content-between">
+        <div>${it.name} x${it.quantity}</div>
+        <div>$${(Number(it.price || 0) * Number(it.quantity || 1)).toFixed(2)}</div>
+      </div>`).join('');
+
+        return `
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-semibold">Order #${o._id}</div>
+              <div class="text-secondary small">${new Date(o.createdAt).toLocaleString()}</div>
+              <span class="badge bg-success text-uppercase">Delivered</span>
+            </div>
+            <div class="text-end">
+              <div>Subtotal: <strong>$${Number(o.subtotal || 0).toFixed(2)}</strong></div>
+              <div>Delivery: <strong>$${Number(o.deliveryFee || 0).toFixed(2)}</strong></div>
+              <div>Total: <span class="fs-5 fw-bold">$${Number(o.total || 0).toFixed(2)}</span></div>
+            </div>
+          </div>
+          <hr class="my-2">
+          ${itemsHtml}
+        </div>
+      </div>`;
+      }).join('');
+    }
+
+    async function updateOrderStatus(id, status) {
+      const res = await fetch(`${API_BASE}/restaurant-dashboard/orders/${id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ status })
+      });
+      const d = await res.json();
+      if (res.ok) {
+        loadDashboard();
+      } else {
+        alert(d.error || "Failed to update");
+      }
+    }
+
   </script>
 </body>
 
