@@ -81,6 +81,31 @@
             position: relative;
             z-index: 2;
         }
+                /* Footer */
+    footer{
+      position:relative;
+      z-index:2;               
+      background:#ffffff;
+    }
+    footer .link-muted{
+      color:var(--muted);
+      text-decoration:none;
+    }
+    footer .link-muted:hover{
+      text-decoration:underline;
+      color:#0e0e0e;
+    }
+    /* Logo sizing */
+    .brand-logo {
+      height: 100px;      
+      width: auto;
+      display: inline-block;
+      vertical-align: middle;
+    }
+
+    footer .brand-logo {
+      height: 50px;      /* slightly smaller in footer */
+    }
     </style>
 </head>
 
@@ -88,7 +113,9 @@
     <!-- NAV -->
     <nav class="navbar sticky-top">
         <div class="container py-2">
-            <a class="navbar-brand brand" href="/index.html">bite<span class="accent">code</span></a>
+                  <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+        <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+      </a>
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <a class="btn btn-outline-secondary rounded-pill" href="/orders.html">My Orders</a>
                 <a class="btn btn-outline-primary rounded-pill" href="/cart.html">Cart</a>
@@ -135,24 +162,73 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="py-4 mt-5">
-        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
-            <div class="text-muted small">
-                © <span id="year"></span> bitecode • Fueling hungry devs
-                • <a class="text-decoration-none" href="/about.html">About</a>
-                • <a class="text-decoration-none" href="/privacy.html">Privacy</a>
-                • <a class="text-decoration-none" href="/terms.html">Terms</a>
-            </div>
-            <div class="social d-flex gap-2">
-                <a href="https://instagram.com" target="_blank" aria-label="Instagram" title="Instagram"
-                    class="text-muted">IG</a>
-                <a href="https://x.com" target="_blank" aria-label="Twitter/X" title="Twitter/X"
-                    class="text-muted">X</a>
-                <a href="https://facebook.com" target="_blank" aria-label="Facebook" title="Facebook"
-                    class="text-muted">FB</a>
-            </div>
+    <footer class="border-top bg-white">
+    <div class="container py-5">
+        <div class="row gy-4">
+        <!-- Left brand block -->
+        <div class="col-12 col-md-4 text-center text-md-start">
+            <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+            <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+            </a>
+            <p class="small text-muted mb-0">
+            © 2025 -<span id="yearFooter"></span> Because coding’s better with curry 🥘
+            </p>
         </div>
+
+        <!-- Middle stacked dashboards -->
+        <div class="col-12 col-md-4 text-center">
+            <h6 class="fw-bold text-uppercase text-muted mb-3">Dashboards</h6>
+            <ul class="list-unstyled small mb-0">
+            <li class="mb-2">
+                <a class="link-muted" href="/customer-login.html">Customer Login</a>
+            </li>
+            <li class="mb-2">
+                <a class="link-muted" href="/driver-login.html">Driver Login</a>
+            </li>
+            <li class="mb-2">
+                <a class="link-muted" href="/restaurant-login.html">Restaurant Login</a>
+            </li>
+            </ul>
+        </div>
+
+        <!-- Right playful links + socials -->
+        <div class="col-12 col-md-4 text-center text-md-end">
+            <h6 class="fw-bold text-uppercase text-muted mb-3">Get Started</h6>
+            <ul class="list-unstyled small mb-4">
+            <li class="mb-2">
+                <a class="link-muted" href="/customer-register.html">New here? Join as a Customer</a>
+            </li>
+            <li class="mb-2">
+                <a class="link-muted" href="/register-driver.html">Want to drive? Partner with us</a>
+            </li>
+            <li class="mb-2">
+                <a class="link-muted" href="/restaurant-register.html">Own a restaurant? Increase your reach 🍽️</a>
+            </li>
+            </ul>
+
+            <ul class="list-unstyled small mb-0 d-flex justify-content-center justify-content-md-end gap-3">
+            <li>
+                <a class="link-muted" href="https://www.instagram.com/bitecode" target="_blank"
+                aria-label="Instagram" title="Instagram">
+                <i class="bi bi-instagram fs-4"></i>
+                </a>
+            </li>
+            <li>
+                <a class="link-muted" href="https://x.com/bitecode" target="_blank"
+                aria-label="Twitter/X" title="Twitter/X">
+                <i class="bi bi-twitter-x fs-4"></i>
+                </a>
+            </li>
+            <li>
+                <a class="link-muted" href="https://facebook.com/bitecode" target="_blank"
+                aria-label="Facebook" title="Facebook">
+                <i class="bi bi-facebook fs-4"></i>
+                </a>
+            </li>
+            </ul>
+        </div>
+        </div>
+    </div>
     </footer>
 
     <script>
