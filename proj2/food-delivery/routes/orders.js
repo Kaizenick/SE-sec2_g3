@@ -7,11 +7,16 @@ import MenuItem from "../models/MenuItem.js";
 
 const router = express.Router();
 
-// GET /api/orders → fetch all orders for the logged-in customer
+/**
+ * GET /api/orders
+ * Fetch all orders for the logged-in customer
+ */
 router.get("/", async (req, res) => {
   try {
     const customerId = req.session.customerId;
-    if (!customerId) return res.status(401).json({ message: "Not logged in" });
+    if (!customerId) {
+      return res.status(401).json({ message: "Not logged in" });
+    }
 
     const orders = await Order.find({ userId: customerId }).sort({ createdAt: -1 });
     res.json(orders);
@@ -20,16 +25,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/orders → place a new order (supports subset via { itemIds })
+/**
+ * POST /api/orders
+ * Place a new order (optionally for selected cart items via { itemIds })
+ */
 router.post("/", async (req, res) => {
   try {
     const customerId = req.session.customerId;
-    if (!customerId) return res.status(401).json({ error: "Customer not logged in" });
+    if (!customerId) {
+      return res.status(401).json({ error: "Customer not logged in" });
+    }
 
     // Optional subset: { itemIds: [...] }
     let itemIds = Array.isArray(req.body?.itemIds) ? req.body.itemIds : null;
     if (itemIds && itemIds.length) {
-      // cast to ObjectId for reliable $in match
+      // safely cast to ObjectIds
       itemIds = itemIds
         .filter(Boolean)
         .map(id => {
@@ -37,6 +47,7 @@ router.post("/", async (req, res) => {
           catch { return null; }
         })
         .filter(Boolean);
+
       if (!itemIds.length) {
         return res.status(400).json({ error: "No matching items found to checkout" });
       }
@@ -54,17 +65,39 @@ router.post("/", async (req, res) => {
       });
     }
 
-    // Authoritative menu data (names, prices, and restaurant ownership)
+    // 🧩 Fetch authoritative menu data (both available & unavailable)
     const menuIds = cartItems.map(ci => ci.menuItemId);
-    const menuItems = await MenuItem.find({ _id: { $in: menuIds } }).lean();
+    const allMenuItems = await MenuItem.find({ _id: { $in: menuIds } }).lean();
+
+    // 🛑 Detect unavailable items
+    const unavailableItems = allMenuItems.filter(m => !m.isAvailable);
+    if (unavailableItems.length) {
+      const names = unavailableItems.map(m => m.name || "Unknown item");
+
+      // // Optional: auto-remove them from cart
+      // await CartItem.deleteMany({
+      //   userId: customerId,
+      //   menuItemId: { $in: unavailableItems.map(m => m._id) }
+      // });
+
+      return res.status(400).json({
+        error: "Some selected items are unavailable and were removed from your cart.",
+        unavailableItems: names
+      });
+    }
+
+    // ✅ Proceed only with available items
+    const menuItems = allMenuItems.filter(m => m.isAvailable);
     const menuMap = new Map(menuItems.map(m => [String(m._id), m]));
 
-    // Derive restaurantIds from MenuItem docs (robust even if CartItem.restaurantId is missing)
+    // Derive restaurant IDs from menu items
     const restIdSet = new Set(
-      cartItems.map(ci => {
-        const mi = menuMap.get(String(ci.menuItemId));
-        return mi?.restaurantId ? String(mi.restaurantId) : undefined;
-      }).filter(Boolean)
+      cartItems
+        .map(ci => {
+          const mi = menuMap.get(String(ci.menuItemId));
+          return mi?.restaurantId ? String(mi.restaurantId) : undefined;
+        })
+        .filter(Boolean)
     );
 
     if (!restIdSet.size) {
@@ -76,15 +109,18 @@ router.post("/", async (req, res) => {
 
     const restaurantId = [...restIdSet][0];
     const restaurant = await Restaurant.findById(restaurantId).lean();
-    if (!restaurant) return res.status(404).json({ error: "Restaurant not found" });
+    if (!restaurant) {
+      return res.status(404).json({ error: "Restaurant not found" });
+    }
 
-    // Build order lines and compute subtotal from authoritative menu data
+    // ✅ Build order lines and compute totals
     let subtotal = 0;
     const items = cartItems.map(ci => {
       const mi = menuMap.get(String(ci.menuItemId));
       const price = Number(mi?.price ?? 0);
       const qty = Number(ci.quantity ?? 1);
       subtotal += price * qty;
+
       return {
         menuItemId: ci.menuItemId,
         name: mi?.name || "Item",
@@ -96,6 +132,7 @@ router.post("/", async (req, res) => {
     const deliveryFee = Number(restaurant.deliveryFee ?? 0);
     const total = subtotal + deliveryFee;
 
+    // ✅ Create order document
     const order = await Order.create({
       userId: customerId,
       restaurantId,
@@ -107,7 +144,7 @@ router.post("/", async (req, res) => {
       paymentStatus: "paid"
     });
 
-    // Remove only the checked-out items when subset was provided; otherwise clear entire cart
+    // 🧹 Clear checked-out items from cart
     if (itemIds?.length) {
       await CartItem.deleteMany({ userId: customerId, _id: { $in: itemIds } });
     } else {
@@ -116,8 +153,7 @@ router.post("/", async (req, res) => {
 
     return res.status(201).json(order);
   } catch (err) {
-    // Optional: log diagnostics while developing
-    // console.error("Order error:", err);
+    console.error("❌ Order error:", err);
     res.status(500).json({ error: err.message });
   }
 });

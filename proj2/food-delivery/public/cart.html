@@ -306,98 +306,116 @@
     }
 
     // ---- Render ----
-    function renderSummary(groups) {
-      if (!groups.length) { summaryEl.innerHTML = ''; return; }
-      const grand = groups.reduce((a, g) => a + g.subtotal, 0);
-      const sel = selectedRestaurantId ? groups.find(g => g.restaurantId === selectedRestaurantId) : null;
+    function renderSummary(groups){
+  if (!groups.length){ summaryEl.innerHTML = ''; return; }
+  const grand = groups.reduce((a,g)=>a+g.subtotal,0);
+  const sel = selectedRestaurantId ? groups.find(g => g.restaurantId === selectedRestaurantId) : null;
 
-      checkoutBtn.disabled = !sel;
+  let disableCheckout = !sel;
+  if (sel && sel.hasUnavailable) disableCheckout = true;
 
-      summaryEl.innerHTML = `
-        <div class="summary-card p-3 mt-2">
-          <div class="d-flex justify-content-between">
-            <span class="fw-semibold">Items total</span>
-            <span>${money(grand)}</span>
+  checkoutBtn.disabled = disableCheckout;
+
+  summaryEl.innerHTML = `
+    <div class="summary-card p-3 mt-2">
+      <div class="d-flex justify-content-between">
+        <span class="fw-semibold">Items total</span>
+        <span>${money(grand)}</span>
+      </div>
+      ${sel ? `
+      <div class="d-flex justify-content-between mt-2">
+        <span class="text-secondary">Selected restaurant</span>
+        <span>${sel.name} • ${money(sel.subtotal)}</span>
+      </div>` : `
+      <div class="text-secondary small mt-2">Select one restaurant below to checkout.</div>
+      `}
+      ${sel && sel.hasUnavailable ? `
+        <div class="text-danger small mt-2">⚠ Some items are unavailable — please remove them before checkout.</div>
+      ` : ''}
+      <div class="text-secondary small mt-2">Delivery fees are per-restaurant and added at checkout.</div>
+    </div>`;
+}
+
+    function renderGroups(groups){
+  if (!groups.length){
+    groupsEl.innerHTML = `<div class="alert alert-light text-dark shadow-sm">Your cart is empty.</div>`;
+    summaryEl.innerHTML = '';
+    setCartBadge(0);
+    return;
+  }
+
+  const totalItems = groups.reduce((a,g)=>a+g.items.length,0);
+  setCartBadge(totalItems);
+
+  groupsEl.innerHTML = groups.map(g => {
+    const itemsHtml = g.items.map(i => {
+      const m = i.menuItemId || {};
+      const price = Number(m.price || 0);
+      const qty = Number(i.quantity || 1);
+      const line = price * qty;
+      const img = m.imageUrl || 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800&auto=format&fit=crop';
+      const name = m.name || 'Item';
+      const unavailable = m.isAvailable === false;
+
+      return `
+        <div class="p-3 border-bottom ${unavailable ? 'opacity-50' : ''}">
+          <div class="d-flex align-items-center gap-3">
+            <img class="item-thumb" src="${img}" alt="${name}">
+            <div class="flex-grow-1">
+              <div class="fw-semibold">${name}
+                ${unavailable ? '<span class="badge bg-secondary ms-2">Unavailable</span>' : ''}
+              </div>
+              <div class="text-secondary small">${money(price)} each</div>
+              <div class="mt-2 d-flex align-items-center gap-2">
+                <label class="text-secondary small">Qty</label>
+                <input class="form-control qty-input" type="number" min="1" value="${qty}"
+                       ${unavailable ? 'disabled' : ''}
+                       onchange="updateQty('${i._id}', this.value)">
+              </div>
+            </div>
+            <div class="text-end">
+              <div class="fw-bold">${money(line)}</div>
+              <button class="btn btn-outline-danger btn-sm mt-2" onclick="removeItem('${i._id}')">Remove</button>
+            </div>
           </div>
-          ${sel ? `
-          <div class="d-flex justify-content-between mt-2">
-            <span class="text-secondary">Selected restaurant</span>
-            <span>${sel.name} • ${money(sel.subtotal)}</span>
-          </div>` : `
-          <div class="text-secondary small mt-2">Select one restaurant below to checkout.</div>
-          `}
-          <div class="text-secondary small mt-2">Delivery fees are per-restaurant and added at checkout.</div>
         </div>`;
-    }
+    }).join('');
 
-    function renderGroups(groups) {
-      if (!groups.length) {
-        groupsEl.innerHTML = `<div class="alert alert-light text-dark shadow-sm">Your cart is empty.</div>`;
-        summaryEl.innerHTML = '';
-        setCartBadge(0);
-        return;
-      }
-      const totalItems = groups.reduce((a, g) => a + g.items.length, 0);
-      setCartBadge(totalItems);
+    const hasUnavailable = g.items.some(i => i.menuItemId?.isAvailable === false);
+    g.hasUnavailable = hasUnavailable;
 
-      groupsEl.innerHTML = groups.map(g => {
-        const itemsHtml = g.items.map(i => {
-          const m = i.menuItemId || {};
-          const price = Number(m.price || 0);
-          const qty = Number(i.quantity || 1);
-          const line = price * qty;
-          const img = m.imageUrl || 'https://images.unsplash.com/photo-1498654896293-37aacf113fd9?q=80&w=800&auto=format&fit=crop';
-          const name = m.name || 'Item';
-          return `
-            <div class="p-3 border-bottom">
-              <div class="d-flex align-items-center gap-3">
-                <img class="item-thumb" src="${img}" alt="${name}">
-                <div class="flex-grow-1">
-                  <div class="fw-semibold">${name}</div>
-                  <div class="text-secondary small">${money(price)} each</div>
-                  <div class="mt-2 d-flex align-items-center gap-2">
-                    <label class="text-secondary small">Qty</label>
-                    <input class="form-control qty-input" type="number" min="1" value="${qty}"
-                           onchange="updateQty('${i._id}', this.value)">
-                  </div>
-                </div>
-                <div class="text-end">
-                  <div class="fw-bold">${money(line)}</div>
-                  <button class="btn btn-outline-danger btn-sm mt-2" onclick="removeItem('${i._id}')">Remove</button>
-                </div>
-              </div>
-            </div>`;
-        }).join('');
+    const metaBits = [];
+    if (g.eta) metaBits.push(`${g.eta} min`);
+    if (typeof g.fee === 'number') metaBits.push(`$${g.fee.toFixed(2)} delivery`);
+    const meta = metaBits.join(' • ');
 
-        const metaBits = [];
-        if (g.eta) metaBits.push(`${g.eta} min`);
-        if (typeof g.fee === 'number') metaBits.push(`$${g.fee.toFixed(2)} delivery`);
-        const meta = metaBits.join(' • ');
+    const checked = selectedRestaurantId === g.restaurantId ? 'checked' : '';
 
-        const checked = selectedRestaurantId === g.restaurantId ? 'checked' : '';
-
-        return `
-          <div class="group-card">
-            <div class="group-header p-3 d-flex justify-content-between align-items-center">
-              <div class="d-flex align-items-center gap-3">
-                <div class="select-restaurant">
-                  <input type="radio" name="selectRestaurant" ${checked}
-                         onchange="selectRestaurant('${g.restaurantId}')">
-                  <span class="fw-semibold">${g.name || 'Restaurant'}</span>
-                </div>
-              </div>
-              <div class="text-secondary small">${meta}</div>
+    return `
+      <div class="group-card">
+        <div class="group-header p-3 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-3">
+            <div class="select-restaurant">
+              <input type="radio" name="selectRestaurant" ${checked}
+                     onchange="selectRestaurant('${g.restaurantId}')">
+              <span class="fw-semibold">${g.name || 'Restaurant'}</span>
             </div>
-            ${itemsHtml}
-            <div class="p-3 d-flex justify-content-between align-items-center">
-              <div class="text-secondary">Subtotal</div>
-              <div class="fw-bold">${money(g.subtotal)}</div>
-            </div>
-          </div>`;
-      }).join('');
+          </div>
+          <div class="text-secondary small">${meta}</div>
+        </div>
+        ${itemsHtml}
+        <div class="p-3 d-flex justify-content-between align-items-center">
+          <div class="text-secondary">
+            Subtotal
+            ${hasUnavailable ? '<div class="text-danger small">⚠ Some items unavailable</div>' : ''}
+          </div>
+          <div class="fw-bold">${money(g.subtotal)}</div>
+        </div>
+      </div>`;
+  }).join('');
 
-      renderSummary(groups);
-    }
+  renderSummary(groups);
+}
 
     // ---- Actions ----
     async function updateQty(id, qty) {
@@ -427,14 +445,31 @@
         showAlert('warning', 'Please select a restaurant to checkout.');
         return;
       }
+      const group = cachedGroups.find(g => g.restaurantId === selectedRestaurantId);
+      if (!group || !group.items?.length){
+        showAlert('warning','Selected restaurant has no items.');
+        return;
+      }
+      const itemIds = group.items.map(i => String(i._id));
+      const res = await fetch(`${API_BASE}/orders`, {
+        method:'POST',
+        headers:{ 'Content-Type': 'application/json' },
+        credentials:'include',
+        body: JSON.stringify({ itemIds }) // 🔑 only convert these items into an order
+      });
+      const data = await res.json().catch(()=>({}));
+      if (res.status === 201 || data?.ok){
+      showAlert('success', `Order placed from ${group.name}!`);
+      selectedRestaurantId = null;
+      init();
+      setTimeout(()=>location.href='/orders.html', 600);
+    } else if (data.unavailableItems) {
+      showAlert('danger', `Some items are unavailable:\n${data.unavailableItems.join(', ')}`);
+      init(); // reload cart to reflect new statuses
+    } else {
+      showAlert('danger', 'Error: ' + (data.error || 'Unable to checkout'));
+    }
 
-      showAlert('info', 'Redirecting to payment...');
-
-      // Save selected restaurant so /payment.html can read it later if needed
-      localStorage.setItem('selectedRestaurantId', selectedRestaurantId);
-
-      // Redirect to our new payment gateway page
-      window.location.href = '/payment.html';
     }
 
     function selectRestaurant(rid) {
@@ -451,6 +486,7 @@
     // ---- Init ----
     async function init() {
       const items = await fetchCart();
+      console.log("Fetched cart items:", items);
       const groups = groupByRestaurant(items);
       const enriched = await enrichGroups(groups);
       cachedGroups = enriched;

@@ -57,3 +57,4 @@ ENV/
 # =========================
 .gitignore~
 *.bak
+"proj2/food-delivery/seed/seeded_restaurant_credentials.csv" 

@@ -100,6 +100,8 @@ router.get("/data", requireRestaurant, async (req, res) => {
     const menuItems = await MenuItem.find({ restaurantId });
     const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
 
+    console.log("📋 Menu items for restaurant:", restaurantId);
+    console.log(menuItems);
     res.json({
       ok: true,
       restaurantName: req.session.restaurantName || "Restaurant",
@@ -114,9 +116,10 @@ router.get("/data", requireRestaurant, async (req, res) => {
 });
 
 // Create menu item
+// Create menu item
 router.post("/menu", requireRestaurant, async (req, res) => {
   try {
-    const { name, description, price, imageUrl } = req.body;
+    const { name, description, price, imageUrl, isAvailable } = req.body;
     const restaurantId = req.session.restaurantId;
 
     const item = await MenuItem.create({
@@ -125,9 +128,31 @@ router.post("/menu", requireRestaurant, async (req, res) => {
       description,
       price,
       imageUrl,
+      isAvailable: typeof isAvailable === "boolean" ? isAvailable : true, // ✅ default true
     });
 
     res.status(201).json({ ok: true, item });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ✅ Set availability (idempotent)
+router.patch("/menu/:id/availability", requireRestaurant, async (req, res) => {
+  try {
+    const { isAvailable } = req.body;
+    if (typeof isAvailable !== "boolean") {
+      return res.status(400).json({ error: "isAvailable (boolean) is required" });
+    }
+
+    const item = await MenuItem.findOneAndUpdate(
+      { _id: req.params.id, restaurantId: req.session.restaurantId },
+      { isAvailable },
+      { new: true }
+    );
+    if (!item) return res.status(404).json({ error: "Item not found" });
+
+    res.json({ ok: true, item });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

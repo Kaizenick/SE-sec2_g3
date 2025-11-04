@@ -238,7 +238,8 @@ async function main(){
       name: m.name,
       description: m.description,
       price: m.price,
-      imageUrl: m.imageUrl
+      imageUrl: m.imageUrl,
+      isAvailable: true
     })));
 
     process.stdout.write(`  • ${name} (${cuisine}) — ${menu.length} items\n`);

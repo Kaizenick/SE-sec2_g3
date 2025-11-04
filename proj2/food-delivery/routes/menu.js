@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
   try {
     const { restaurantId } = req.query;
     if (!restaurantId) return res.status(400).json({ error: 'restaurantId is required' });
-    const items = await MenuItem.find({ restaurantId }).sort({ name: 1 });
+    const items = await MenuItem.find({ restaurantId, isAvailable: true }).sort({ name: 1 });
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: err.message });

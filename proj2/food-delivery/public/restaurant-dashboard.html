@@ -101,6 +101,15 @@
       color: #16a34a;
       font-weight: 600;
     }
+    .list-group-item.unavailable {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+    .badge, .btn {
+  transition: all 0.2s ease-in-out;
+}
+
+
   </style>
 </head>
 
@@ -293,7 +302,7 @@
         credentials: "include"
       });
 
-      const data = await res.json();
+     const data = await res.json();
 
       if (res.ok && data.ok) {
         if (data.restaurantImageUrl) {
@@ -337,26 +346,114 @@
       }
     }
 
-    function renderMenu(items) {
-      const list = document.getElementById("menuList");
-      list.innerHTML = "";
-      items.forEach(i => {
-        const li = el("li", "list-group-item d-flex justify-content-between align-items-center");
-        li.innerHTML = `
-          <div>
-            <strong>${i.name}</strong> - $${i.price.toFixed(2)}<br>
-            <small>${i.description || ""}</small>
-            ${i.imageUrl ? `<div><img src="${new URL(i.imageUrl, location.origin)}" height="50" style="border-radius:8px;margin-top:6px;"></div>` : ""}
-          </div>
-          <button class="btn btn-sm btn-danger" onclick="deleteItem('${i._id}')">Delete</button>`;
-        list.appendChild(li);
-      });
-    }
+  function renderMenu(items) {
+  const list = document.getElementById("menuList");
+  list.innerHTML = "";
+
+  items.forEach(i => {
+    const li = el("li", "list-group-item d-flex justify-content-between align-items-center");
+
+    li.innerHTML = `
+      <div>
+        <strong>${i.name}</strong> - $${i.price.toFixed(2)}
+        <span class="badge ${i.isAvailable ? 'bg-success' : 'bg-secondary'} ms-2" id="badge-${i._id}">
+          ${i.isAvailable ? 'Available' : 'Unavailable'}
+        </span><br>
+        <small>${i.description || ""}</small>
+        ${i.imageUrl 
+          ? `<div><img src="${new URL(i.imageUrl, location.origin)}" height="50" style="border-radius:8px;margin-top:6px;"></div>` 
+          : ""}
+      </div>
+
+      <div class="btn-group">
+        <button id="toggle-${i._id}" 
+          class="btn btn-sm ${i.isAvailable ? 'btn-success' : 'btn-outline-secondary'}"
+          onclick="toggleAvailability('${i._id}', ${!i.isAvailable})">
+          ${i.isAvailable ? '✓ Available' : '✗ Unavailable'}
+        </button>
+
+        <button class="btn btn-sm btn-warning" 
+          onclick="editItem('${i._id}', '${i.name}', '${i.description || ''}', '${i.price}', '${i.imageUrl || ''}')">
+          Edit
+        </button>
+
+        <button class="btn btn-sm btn-danger" 
+          onclick="deleteItem('${i._id}')">
+          Delete
+        </button>
+      </div>
+    `;
+
+    list.appendChild(li);
+  });
+}
+
+
+
 
     async function deleteItem(id) {
       await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}`, { method: "DELETE", credentials: "include" });
       loadDashboard();
     }
+    async function toggleAvailability(id, newState) {
+  const btn = document.getElementById(`toggle-${id}`);
+  const badge = document.getElementById(`badge-${id}`);
+
+  // immediate visual feedback
+  btn.disabled = true;
+  btn.textContent = "Updating…";
+
+  const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}/availability`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ isAvailable: newState })
+  });
+
+  if (res.ok) {
+    // flip the appearance without reloading whole dashboard
+    btn.disabled = false;
+    btn.classList.toggle("btn-success", newState);
+    btn.classList.toggle("btn-outline-secondary", !newState);
+    btn.textContent = newState ? "✓ Available" : "✗ Unavailable";
+
+    badge.classList.toggle("bg-success", newState);
+    badge.classList.toggle("bg-secondary", !newState);
+    badge.textContent = newState ? "Available" : "Unavailable";
+
+    // optionally update onclick state for next toggle
+    btn.setAttribute("onclick", `toggleAvailability('${id}', ${!newState})`);
+  } else {
+    btn.disabled = false;
+    btn.textContent = "Error!";
+    alert("Failed to update availability");
+  }
+}
+
+
+// Simple prompt-based editing — replace with modal if you prefer
+async function editItem(id, currentName, currentDesc, currentPrice, currentImg) {
+  const name = prompt("Enter new name:", currentName);
+  const description = prompt("Enter new description:", currentDesc);
+  const price = parseFloat(prompt("Enter new price:", currentPrice));
+
+  if (!name || isNaN(price)) return alert("Invalid input!");
+
+  const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({ name, description, price, imageUrl: currentImg })
+  });
+
+  if (res.ok) {
+    alert("Item updated!");
+    loadDashboard();
+  } else {
+    alert("Failed to update item");
+  }
+}
+
 
     loadDashboard();
 

@@ -8,13 +8,30 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const customerId = req.session.customerId;
-    if (!customerId) return res.status(401).json({ error: "Customer not logged in" });
+    if (!customerId) return res.status(401).json({ message: "Not logged in" });
 
-    const items = await CartItem.find({ userId: customerId })
-      .populate("menuItemId")
-      .lean();
+    // ✅ Fetch all cart items with nested menu + restaurant data
+const cart = await CartItem.find({ userId: customerId })
+  .populate({
+    path: "menuItemId",
+    populate: { path: "restaurantId" }
+  })
+  .lean();
 
-    res.json(items);
+// ✅ Decorate each cart item with availability and details
+const detailedCart = cart.map((ci) => {
+      const item = ci.menuItemId || {};
+      return {
+        ...ci,
+        menuItemId: {
+          ...item,
+          isAvailable: item.isAvailable ?? false,
+        },
+      };
+    });
+
+    res.json(detailedCart);
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
