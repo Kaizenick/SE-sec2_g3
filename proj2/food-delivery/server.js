@@ -18,6 +18,7 @@ import orderRouter from './routes/orders.js';
 import customerAuthRouter from './routes/customerAuth.js';
 import restaurantDashboardRouter from './routes/restaurantDashboard.js';
 import driverDashboardRoutes from './routes/driverDashboard.js';
+import paymentRouter from './routes/payments.js';
 
 dotenv.config();
 
@@ -84,6 +85,10 @@ app.use('/api/customer-auth', customerAuthRouter);
 app.use('/api/restaurant-dashboard', restaurantDashboardRouter);
 
 app.use('/api/driver', driverDashboardRoutes);
+app.use('/api/payments', paymentRouter);
+
+
+
 console.log("✅ /api/orders route registered");
 
 // 404 handler for API

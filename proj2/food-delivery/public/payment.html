@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment • bitecode</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+    <style>
+        :root {
+            --accent: #16a34a;
+            --text: #0e0e0e;
+            --muted: #6a6f73;
+            --overlay: rgba(0, 0, 0, .35);
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+            background:
+                linear-gradient(to bottom, rgba(255, 255, 255, .0), rgba(255, 255, 255, .25)),
+                url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=2400&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: var(--overlay);
+            z-index: 0;
+        }
+
+        .navbar {
+            position: relative;
+            z-index: 3;
+            background: rgba(255, 255, 255, .9) !important;
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(0, 0, 0, .06);
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: .2px;
+            color: #0e0e0e;
+            text-decoration: none;
+        }
+
+        .brand .accent {
+            color: var(--accent);
+        }
+
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+        }
+
+        .pay-btn {
+            background-color: var(--accent);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .pay-btn:hover {
+            background-color: #15803d;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, .9);
+            border-top: 1px solid rgba(0, 0, 0, .06);
+            backdrop-filter: blur(6px);
+            position: relative;
+            z-index: 2;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- NAV -->
+    <nav class="navbar sticky-top">
+        <div class="container py-2">
+            <a class="navbar-brand brand" href="/index.html">bite<span class="accent">code</span></a>
+            <div class="d-flex align-items-center gap-2 ms-auto">
+                <a class="btn btn-outline-secondary rounded-pill" href="/orders.html">My Orders</a>
+                <a class="btn btn-outline-primary rounded-pill" href="/cart.html">Cart</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <main class="container py-5 flex-grow-1 position-relative" style="z-index:2;">
+        <div class="mx-auto" style="max-width:480px;">
+            <div class="card p-4 shadow-sm">
+                <h1 class="h4 fw-bold text-center mb-1">Payment Gateway</h1>
+                <p class="text-center text-muted small mb-4">Securely complete your payment and code your way into the
+                    world of cashbacks!
+                </p>
+                <hr>
+
+                <form id="mockPayForm">
+                    <div class="mb-3">
+                        <label class="form-label">Name on Card</label>
+                        <input type="text" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" placeholder="4242 4242 4242 4242" required />
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col">
+                            <label class="form-label">Expiry</label>
+                            <input type="text" class="form-control" placeholder="MM/YY" required />
+                        </div>
+                        <div class="col">
+                            <label class="form-label">CVV</label>
+                            <input type="password" class="form-control" required />
+                        </div>
+                    </div>
+
+                    <!-- Coupon info -->
+                    <div id="couponBanner" class="alert alert-success d-none text-center py-2 small mb-3"></div>
+
+                    <button class="btn pay-btn w-100 py-2" type="submit">Pay Now</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="py-4 mt-5">
+        <div class="container d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+            <div class="text-muted small">
+                © <span id="year"></span> bitecode • Fueling hungry devs
+                • <a class="text-decoration-none" href="/about.html">About</a>
+                • <a class="text-decoration-none" href="/privacy.html">Privacy</a>
+                • <a class="text-decoration-none" href="/terms.html">Terms</a>
+            </div>
+            <div class="social d-flex gap-2">
+                <a href="https://instagram.com" target="_blank" aria-label="Instagram" title="Instagram"
+                    class="text-muted">IG</a>
+                <a href="https://x.com" target="_blank" aria-label="Twitter/X" title="Twitter/X"
+                    class="text-muted">X</a>
+                <a href="https://facebook.com" target="_blank" aria-label="Facebook" title="Facebook"
+                    class="text-muted">FB</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* ---------- Setup: ensure stable element IDs ---------- */
+        const form = document.getElementById("mockPayForm");
+        const cardInput = form.querySelector('input[placeholder*="4242"]') || form.querySelector('input[name="cardNumber"]') || (function () { const i = document.createElement('input'); i.id = 'cardNumber'; return i; })();
+        cardInput.id = cardInput.id || 'cardNumber';
+
+        const expiryInput = form.querySelector('input[placeholder*="MM/YY"]') || form.querySelector('input[name="expiry"]') || (function () { const i = document.createElement('input'); i.id = 'expiry'; return i; })();
+        expiryInput.id = expiryInput.id || 'expiry';
+
+        const cvvInput = form.querySelector('input[type="password"]') || form.querySelector('input[name="cvv"]') || (function () { const i = document.createElement('input'); i.id = 'cvv'; return i; })();
+        cvvInput.id = cvvInput.id || 'cvv';
+
+        const payBtn = form.querySelector('.pay-btn') || document.querySelector('button[type="submit"]');
+        payBtn.disabled = true; // default disabled until valid
+
+        // Add small inline feedback elements
+        function ensureHint(el, idSuffix, text = '') {
+            let hint = el.parentElement.querySelector('.hint-' + idSuffix);
+            if (!hint) {
+                hint = document.createElement('div');
+                hint.className = 'text-danger small mt-1 hint-' + idSuffix;
+                hint.style.minHeight = '1em';
+                el.parentElement.appendChild(hint);
+            }
+            hint.textContent = text;
+            return hint;
+        }
+
+        /* ---------- Utilities ---------- */
+        const onlyDigits = s => s.replace(/\D/g, '');
+        const chunk = (s, n) => s.match(new RegExp('.{1,' + n + '}', 'g')) || [];
+
+        /* ---------- Card formatting (groups of 4) ---------- */
+        cardInput.addEventListener('input', (e) => {
+            const pos = cardInput.selectionStart;
+            const raw = onlyDigits(cardInput.value).slice(0, 19); // allow up to 19 digits
+            const grouped = chunk(raw, 4).join(' ');
+            cardInput.value = grouped;
+
+            // try to maintain caret near the end
+            requestAnimationFrame(() => cardInput.setSelectionRange(cardInput.value.length, cardInput.value.length));
+            validateAll();
+        });
+
+        cardInput.addEventListener('blur', () => {
+            validateCard(); // show message on blur
+        });
+
+        /* ---------- Expiry formatting (MM/YY auto slash) ---------- */
+        expiryInput.addEventListener('input', (e) => {
+            let v = expiryInput.value.replace(/\s+/g, '');
+            // accept formats like MMYY or MM/YY
+            v = v.replace(/[^\d\/]/g, '');
+            if (v.length === 1 && Number(v) > 1) {
+                // If first digit >1, prefix 0 (e.g. user typed 9 -> 09)
+                v = '0' + v;
+            }
+
+            // remove extra slashes, keep only one after 2 chars
+            v = v.replace(/^(\d{0,2})(.*)$/, (m, a, b) => {
+                if (!b) return a;
+                const rest = onlyDigits(b).slice(0, 2);
+                return a + '/' + rest;
+            });
+
+            // If input is like MMYY without slash, insert slash
+            v = v.replace(/^(\d{2})(\d{1,2})$/, (m, a, b) => a + '/' + b);
+
+            // limit to 5 chars (MM/YY)
+            expiryInput.value = v.slice(0, 5);
+            validateAll();
+        });
+        expiryInput.addEventListener('blur', validateExpiry);
+
+        /* ---------- CVV constraints ---------- */
+        cvvInput.setAttribute('maxlength', '4'); // accept 3 or 4
+        cvvInput.addEventListener('input', (e) => {
+            cvvInput.value = onlyDigits(cvvInput.value).slice(0, 4);
+            validateAll();
+        });
+        cvvInput.addEventListener('blur', validateCVV);
+
+        /* ---------- Validation functions ---------- */
+        function validateCard(showHint = false) {
+            const raw = onlyDigits(cardInput.value);
+            // common length check: 13 to 19 digits
+            const ok = raw.length >= 13 && raw.length <= 19;
+            ensureHint(cardInput, 'card', ok ? '' : (showHint ? 'Card number must be 13–19 digits' : ''));
+            return ok;
+        }
+
+        function validateExpiry(showHint = false) {
+            const v = expiryInput.value;
+            // must be MM/YY
+            if (!/^\d{2}\/\d{2}$/.test(v)) {
+                ensureHint(expiryInput, 'expiry', showHint ? 'Expiry must be MM/YY' : '');
+                return false;
+            }
+            const [mmStr, yyStr] = v.split('/');
+            const mm = Number(mmStr), yy = Number(yyStr);
+            if (mm < 1 || mm > 12) {
+                ensureHint(expiryInput, 'expiry', showHint ? 'Invalid month' : '');
+                return false;
+            }
+
+            // Check not in the past (assume 20YY)
+            const now = new Date();
+            const fullYear = 2000 + yy;
+            const expDate = new Date(fullYear, mm); // first day of next month
+            if (expDate <= now) {
+                ensureHint(expiryInput, 'expiry', showHint ? 'Card expired' : '');
+                return false;
+            }
+            ensureHint(expiryInput, 'expiry', '');
+            return true;
+        }
+
+        function validateCVV(showHint = false) {
+            const v = onlyDigits(cvvInput.value);
+            const ok = v.length === 3 || v.length === 4;
+            ensureHint(cvvInput, 'cvv', ok ? '' : (showHint ? 'CVV must be 3 or 4 digits' : ''));
+            return ok;
+        }
+
+        /* ---------- Overall validator enables the pay button ---------- */
+        function validateAll() {
+            const cardOk = validateCard(false);
+            const expOk = validateExpiry(false);
+            const cvvOk = validateCVV(false);
+
+            const canPay = cardOk && expOk && cvvOk;
+            payBtn.disabled = !canPay;
+            return canPay;
+        }
+
+        /* ---------- On submit: final validation + call backend ---------- */
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            // final checks show hints if invalid
+            const ok = validateCard(true) && validateExpiry(true) && validateCVV(true);
+            if (!ok) {
+                // visually focus first invalid
+                if (!validateCard(false)) cardInput.focus();
+                else if (!validateExpiry(false)) expiryInput.focus();
+                else cvvInput.focus();
+                return;
+            }
+
+            // visual feedback
+            payBtn.disabled = true;
+            payBtn.textContent = 'Processing...';
+
+            try {
+                const res = await fetch("/api/payments/mock-checkout", {
+                    method: "POST",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    // we don't need to send card details to server for mock flow
+                    body: JSON.stringify({})
+                });
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    alert(data.message + (data.discountApplied ? `\n🎁 ${data.discountApplied}` : ""));
+                    window.location.href = "/payment-success.html";
+                } else {
+                    alert(data.error || 'Payment failed');
+                    payBtn.disabled = false;
+                    payBtn.textContent = 'Pay Now';
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Network error, try again');
+                payBtn.disabled = false;
+                payBtn.textContent = 'Pay Now';
+            }
+        });
+
+        /* ---------- Run initial validation to set button state ---------- */
+        validateAll();
+    </script>
+
+</body>
+
+</html>

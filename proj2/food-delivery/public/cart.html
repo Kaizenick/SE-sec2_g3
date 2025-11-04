@@ -1,47 +1,154 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Cart • bitecode</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
   <style>
-    :root{
-      --accent:#16a34a; --text:#0e0e0e; --muted:#6a6f73; --card:#fff; --radius:16px;
-      --overlay:rgba(0,0,0,.35);
+    :root {
+      --accent: #16a34a;
+      --text: #0e0e0e;
+      --muted: #6a6f73;
+      --card: #fff;
+      --radius: 16px;
+      --overlay: rgba(0, 0, 0, .35);
     }
-    html,body{height:100%}
-    body{
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      color:var(--text); margin:0; position:relative;
+      color: var(--text);
+      margin: 0;
+      position: relative;
       background:
-        linear-gradient(to bottom, rgba(255,255,255,.0), rgba(255,255,255,.25)),
+        linear-gradient(to bottom, rgba(255, 255, 255, .0), rgba(255, 255, 255, .25)),
         url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=2400&auto=format&fit=crop');
-      background-size:cover; background-position:center;
+      background-size: cover;
+      background-position: center;
     }
-    body::before{ content:""; position:fixed; inset:0; background:var(--overlay); z-index:0; }
-    .navbar{ position:relative; z-index:3; background:rgba(255,255,255,.9)!important; backdrop-filter:blur(8px); border-bottom:1px solid rgba(0,0,0,.06)}
-    .brand{ font-weight:800; letter-spacing:.2px; color:#0e0e0e; text-decoration:none }
-    .brand .accent{ color:var(--accent) }
-    .wrap{ position:relative; z-index:2; }
-    .badge-cart{ position:absolute; top:-6px; right:-6px; background:#dc3545; }
 
-    .group-card{ border:1px solid #eaeaea; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 12px 24px rgba(0,0,0,.08); }
-    .group-header{ background:#fff; border-bottom:1px solid #eee; }
-    .item-thumb{ width:84px; height:84px; object-fit:cover; border-radius:12px; }
-    .qty-input{ width:80px; }
-    .summary-card{ border:1px solid #eaeaea; background:#fff; border-radius:16px; }
-    .section-title{ font-weight:800; color:#fff; text-shadow:0 2px 10px rgba(0,0,0,.4); }
-    .select-restaurant{ display:flex; align-items:center; gap:.5rem; }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: var(--overlay);
+      z-index: 0;
+    }
 
-    footer{ background:rgba(255,255,255,.9); border-top:1px solid rgba(0,0,0,.06); backdrop-filter:blur(6px); }
-    .social a{ display:inline-flex; align-items:center; justify-content:center; width:36px; height:36px; border-radius:50%; border:1px solid #eaeaea; color:#0e0e0e; text-decoration:none }
-    .social a:hover{ background:#f5f5f5 }
-    .alert-floating{ position:fixed; top:86px; right:16px; z-index:4; min-width:260px; }
+    .navbar {
+      position: relative;
+      z-index: 3;
+      background: rgba(255, 255, 255, .9) !important;
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(0, 0, 0, .06)
+    }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: .2px;
+      color: #0e0e0e;
+      text-decoration: none
+    }
+
+    .brand .accent {
+      color: var(--accent)
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+    }
+
+    .badge-cart {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: #dc3545;
+    }
+
+    .group-card {
+      border: 1px solid #eaeaea;
+      background: #fff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, .08);
+    }
+
+    .group-header {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item-thumb {
+      width: 84px;
+      height: 84px;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .qty-input {
+      width: 80px;
+    }
+
+    .summary-card {
+      border: 1px solid #eaeaea;
+      background: #fff;
+      border-radius: 16px;
+    }
+
+    .section-title {
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, .4);
+    }
+
+    .select-restaurant {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    footer {
+      background: rgba(255, 255, 255, .9);
+      border-top: 1px solid rgba(0, 0, 0, .06);
+      backdrop-filter: blur(6px);
+    }
+
+    .social a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid #eaeaea;
+      color: #0e0e0e;
+      text-decoration: none
+    }
+
+    .social a:hover {
+      background: #f5f5f5
+    }
+
+    .alert-floating {
+      position: fixed;
+      top: 86px;
+      right: 16px;
+      z-index: 4;
+      min-width: 260px;
+    }
   </style>
 </head>
+
 <body>
   <!-- NAV -->
   <nav class="navbar sticky-top">
@@ -51,7 +158,8 @@
         <a class="btn btn-outline-secondary rounded-pill" href="/orders.html">My Orders</a>
         <a class="position-relative btn btn-outline-primary rounded-pill" href="/cart.html" id="cartLink">
           <span class="me-1">Cart</span>
-          <span class="position-absolute translate-middle badge rounded-pill badge-cart" id="cartCount" style="display:none;">0</span>
+          <span class="position-absolute translate-middle badge rounded-pill badge-cart" id="cartCount"
+            style="display:none;">0</span>
         </a>
       </div>
     </div>
@@ -87,13 +195,23 @@
       </div>
       <div class="social d-flex gap-2">
         <a href="https://instagram.com" target="_blank" aria-label="Instagram" title="Instagram">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Z" stroke="#000" stroke-opacity=".7" stroke-width="1.5"/><path d="M16.5 7.5h.01M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" stroke="#000" stroke-opacity=".7" stroke-width="1.5"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Z" stroke="#000"
+              stroke-opacity=".7" stroke-width="1.5" />
+            <path d="M16.5 7.5h.01M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z" stroke="#000" stroke-opacity=".7"
+              stroke-width="1.5" />
+          </svg>
         </a>
         <a href="https://x.com" target="_blank" aria-label="Twitter/X" title="Twitter/X">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 4l16 16M20 4 4 20" stroke="#000" stroke-opacity=".7" stroke-width="1.6"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M4 4l16 16M20 4 4 20" stroke="#000" stroke-opacity=".7" stroke-width="1.6" />
+          </svg>
         </a>
         <a href="https://facebook.com" target="_blank" aria-label="Facebook" title="Facebook">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 8h3V4h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V9a1 1 0 0 1 1-1Z" stroke="#000" stroke-opacity=".7" stroke-width="1.5"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M14 8h3V4h-3a5 5 0 0 0-5 5v3H6v4h3v8h4v-8h3l1-4h-4V9a1 1 0 0 1 1-1Z" stroke="#000"
+              stroke-opacity=".7" stroke-width="1.5" />
+          </svg>
         </a>
       </div>
     </div>
@@ -108,42 +226,49 @@
     const summaryEl = document.getElementById('summary');
     const alertBox = document.getElementById('alert');
     const checkoutBtn = document.getElementById('checkoutBtn');
+
     document.getElementById('year').textContent = new Date().getFullYear();
 
     let selectedRestaurantId = null;
     let cachedGroups = [];
 
-    const money = n => `$${(Number(n)||0).toFixed(2)}`;
-    function showAlert(type, msg){
+    const money = n => `$${(Number(n) || 0).toFixed(2)}`;
+    function showAlert(type, msg) {
       alertBox.className = `alert alert-${type} alert-floating`;
       alertBox.textContent = msg;
       alertBox.classList.remove('d-none');
-      setTimeout(()=>alertBox.classList.add('d-none'), 2500);
+      setTimeout(() => alertBox.classList.add('d-none'), 2500);
     }
 
     // ---- Fetch helpers ----
-    async function fetchCart(){
-      const res = await fetch(`${API_BASE}/cart`, { credentials:"include" });
+    async function fetchCart() {
+      const res = await fetch(`${API_BASE}/cart`, { credentials: "include" });
       if (res.status === 401) { location.href = "/customer-login.html"; return []; }
-      if (!res.ok) { showAlert('danger','Failed to load cart'); return []; }
+      if (!res.ok) { showAlert('danger', 'Failed to load cart'); return []; }
       return res.json();
     }
-    async function fetchRestaurant(rid){
-      try{
-        const res = await fetch(`${API_BASE}/restaurants/${encodeURIComponent(rid)}`, { credentials:'include' });
-        if (!res.ok) return null;
-        return res.json();
-      }catch{ return null; }
+    async function fetchRestaurant(rid) {
+      try {
+        const res = await fetch(`${API_BASE}/restaurants/${encodeURIComponent(rid)}`, { credentials: 'include' });
+        if (!res.ok) {
+          console.warn('Failed to fetch restaurant', rid);
+          return null;
+        }
+        return await res.json();
+      } catch(e) {
+        console.error('Error fetching restaurant', e);
+        return null;
+      }
     }
 
     // ---- Grouping ----
     const baseRid = (r) => (!r ? null : (typeof r === 'string' ? r : (r._id || r.id || null)));
-    function groupByRestaurant(items){
+    function groupByRestaurant(items) {
       const map = new Map();
-      for (const it of items){
+      for (const it of items) {
         const m = it.menuItemId || {};
         const rid = baseRid(m.restaurantId) || 'unknown';
-        if (!map.has(rid)){
+        if (!map.has(rid)) {
           map.set(rid, {
             restaurantId: rid,
             name: (m.restaurantId && m.restaurantId.name) || it.restaurantName || 'Restaurant',
@@ -162,28 +287,28 @@
       return [...map.values()];
     }
 
-    async function enrichGroups(groups){
+    async function enrichGroups(groups) {
       const needs = groups.filter(g => g.restaurantId && (!g.name || g.name === 'Restaurant'));
-      for (const g of needs){
+      for (const g of needs) {
         const r = await fetchRestaurant(g.restaurantId);
-        if (r){
+        if (r) {
           g.name = r.name || g.name;
-          g.fee  = typeof r.deliveryFee === 'number' ? r.deliveryFee : g.fee;
-          g.eta  = r.etaMins || g.eta;
+          g.fee = typeof r.deliveryFee === 'number' ? r.deliveryFee : g.fee;
+          g.eta = r.etaMins || g.eta;
         }
       }
       return groups;
     }
 
-    function setCartBadge(n){
-      if (n > 0){ cartCountEl.textContent = n; cartCountEl.style.display='inline-block'; }
-      else { cartCountEl.style.display='none'; }
+    function setCartBadge(n) {
+      if (n > 0) { cartCountEl.textContent = n; cartCountEl.style.display = 'inline-block'; }
+      else { cartCountEl.style.display = 'none'; }
     }
 
     // ---- Render ----
-    function renderSummary(groups){
-      if (!groups.length){ summaryEl.innerHTML = ''; return; }
-      const grand = groups.reduce((a,g)=>a+g.subtotal,0);
+    function renderSummary(groups) {
+      if (!groups.length) { summaryEl.innerHTML = ''; return; }
+      const grand = groups.reduce((a, g) => a + g.subtotal, 0);
       const sel = selectedRestaurantId ? groups.find(g => g.restaurantId === selectedRestaurantId) : null;
 
       checkoutBtn.disabled = !sel;
@@ -205,14 +330,14 @@
         </div>`;
     }
 
-    function renderGroups(groups){
-      if (!groups.length){
+    function renderGroups(groups) {
+      if (!groups.length) {
         groupsEl.innerHTML = `<div class="alert alert-light text-dark shadow-sm">Your cart is empty.</div>`;
         summaryEl.innerHTML = '';
         setCartBadge(0);
         return;
       }
-      const totalItems = groups.reduce((a,g)=>a+g.items.length,0);
+      const totalItems = groups.reduce((a, g) => a + g.items.length, 0);
       setCartBadge(totalItems);
 
       groupsEl.innerHTML = groups.map(g => {
@@ -275,59 +400,44 @@
     }
 
     // ---- Actions ----
-    async function updateQty(id, qty){
+    async function updateQty(id, qty) {
       const res = await fetch(`${API_BASE}/cart/` + id, {
-        method:'PATCH',
-        headers:{ 'Content-Type':'application/json' },
-        credentials:'include',
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ quantity: Number(qty) })
       });
       if (res.ok) init(); else {
-        const err = await res.json().catch(()=>({}));
+        const err = await res.json().catch(() => ({}));
         showAlert('danger', 'Error: ' + (err.error || 'Unable to update'));
       }
     }
-    async function removeItem(id){
-      const res = await fetch(`${API_BASE}/cart/` + id, { method:'DELETE', credentials:'include' });
+    async function removeItem(id) {
+      const res = await fetch(`${API_BASE}/cart/` + id, { method: 'DELETE', credentials: 'include' });
       if (res.ok) init();
     }
-    async function clearCart(){
-      const res = await fetch(`${API_BASE}/cart`, { method:'DELETE', credentials:'include' });
+    async function clearCart() {
+      const res = await fetch(`${API_BASE}/cart`, { method: 'DELETE', credentials: 'include' });
       if (res.ok) { selectedRestaurantId = null; init(); }
     }
 
-    // New: checkout only the selected restaurant's items
-    async function checkoutSelected(){
-      if (!selectedRestaurantId){
-        showAlert('warning','Please select a restaurant to checkout.');
+    //Redirect to custom mock payment page instead of placing order immediately
+    function checkoutSelected() {
+      if (!selectedRestaurantId) {
+        showAlert('warning', 'Please select a restaurant to checkout.');
         return;
       }
-      const group = cachedGroups.find(g => g.restaurantId === selectedRestaurantId);
-      if (!group || !group.items?.length){
-        showAlert('warning','Selected restaurant has no items.');
-        return;
-      }
-      const itemIds = group.items.map(i => String(i._id));
-      const res = await fetch(`${API_BASE}/orders`, {
-        method:'POST',
-        headers:{ 'Content-Type': 'application/json' },
-        credentials:'include',
-        body: JSON.stringify({ itemIds }) // 🔑 only convert these items into an order
-      });
-      const data = await res.json().catch(()=>({}));
-      if (res.status === 201 || data?.ok){
-        showAlert('success', `Order placed from ${group.name}!`);
-        // After success, reload cart; only remaining restaurants stay
-        selectedRestaurantId = null;
-        init();
-        // Optionally redirect to orders
-        setTimeout(()=>location.href='/orders.html', 600);
-      } else {
-        showAlert('danger', 'Error: ' + (data.error || 'Unable to checkout'));
-      }
+
+      showAlert('info', 'Redirecting to payment...');
+
+      // Save selected restaurant so /payment.html can read it later if needed
+      localStorage.setItem('selectedRestaurantId', selectedRestaurantId);
+
+      // Redirect to our new payment gateway page
+      window.location.href = '/payment.html';
     }
 
-    function selectRestaurant(rid){
+    function selectRestaurant(rid) {
       selectedRestaurantId = rid;
       renderSummary(cachedGroups);
     }
@@ -339,7 +449,7 @@
     window.selectRestaurant = selectRestaurant;
 
     // ---- Init ----
-    async function init(){
+    async function init() {
       const items = await fetchCart();
       const groups = groupByRestaurant(items);
       const enriched = await enrichGroups(groups);
@@ -349,4 +459,5 @@
     init();
   </script>
 </body>
+
 </html>

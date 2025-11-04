@@ -15,9 +15,19 @@ const orderSchema = new mongoose.Schema({
   subtotal: Number,
   deliveryFee: Number,
   deliveryLocation: String,
-  deliveryPayment: Number,  
+  deliveryPayment: Number,
   total: Number,
-  status: { type: String, enum: ['placed', 'preparing', 'out_for_delivery', 'delivered'], default: 'placed' }
-}, { timestamps: true });
+  status: {
+    type: String,
+    enum: ['placed', 'preparing', 'out_for_delivery', 'delivered'],
+    default: 'placed'
+  },
+  // separate payment tracking
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'paid', 'failed'],
+    default: 'pending'
+  }
+}, { timestamps: true }); 
 
 export default mongoose.model('Order', orderSchema);

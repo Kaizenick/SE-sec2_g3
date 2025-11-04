@@ -104,6 +104,7 @@ router.post("/", async (req, res) => {
       deliveryFee,
       total,
       status: "placed",
+      paymentStatus: "paid"
     });
 
     // Remove only the checked-out items when subset was provided; otherwise clear entire cart
