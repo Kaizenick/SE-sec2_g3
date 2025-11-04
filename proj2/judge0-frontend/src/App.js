@@ -432,54 +432,63 @@ function App() {
       }}
     >
 
-      {/* === Header === */}
-      <header
-        style={{
-          textAlign: "center",
-          marginBottom: 30,
-          paddingBottom: 10,
-          borderBottom: "1px solid rgba(0,255,179,0.15)"
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "2.8rem",
-            fontWeight: 900,
-            background: "linear-gradient(90deg, #00e0ff 0%, #00ffb3 50%, #00e0ff 100%)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            letterSpacing: 0.5,
-            textShadow: "0 0 20px rgba(0,255,179,0.35)",
-            animation: "glowPulse 3s infinite ease-in-out",
-            fontFamily: "'Poppins', 'Segoe UI', system-ui, sans-serif",
-          }}
-        >
-          🚀 BiteCode <span style={{ color: "#ffffff" }}>Arena</span>
-        </h1>
+{/* === Header === */}
+<header
+  style={{
+    textAlign: "center",
+    margin: 0,
+    padding: "8px 0 4px 0", // minimal vertical padding
+    borderBottom: "1px solid rgba(0,255,179,0.15)",
+  }}
+>
+  {/* Glowing BiteCode logo only */}
+  <img
+    src="/Dark_BitecodeNOBG1.png"
+    alt="BiteCode logo"
+    style={{
+      height: 240, // moderate size
+      width: 240,
+      objectFit: "contain",
+      animation: "logoGlow 3s infinite ease-in-out",
+      margin: "0 auto",
+      display: "block",
+    }}
+  />
 
-        <p
-          style={{
-            color: "#a6c9da",
-            fontSize: 15,
-            marginTop: 8,
-            fontFamily: "Poppins, system-ui, sans-serif",
-            letterSpacing: 0.3,
-          }}
-        >
-          Write. Run. Earn. ⚡ Challenge your limits with real-time coding tests and rewards!
-        </p>
-      </header>
+  {/* Optional tagline */}
+  <p
+    style={{
+      color: "#a6c9da",
+      fontSize: 15,
+      marginTop: 4,
+      marginBottom: 4,
+      fontFamily: "Poppins, system-ui, sans-serif",
+      letterSpacing: 0.4,
+    }}
+  >
+    Write. Run. Earn. ⚡ Challenge your limits!
+  </p>
 
-      {/* === Adding CSS animation inline for the header === */}
-      <style>
-        {`
-    @keyframes glowPulse {
-      0% { text-shadow: 0 0 10px rgba(0,255,179,0.4), 0 0 20px rgba(0,255,179,0.2); }
-      50% { text-shadow: 0 0 25px rgba(0,255,179,0.6), 0 0 40px rgba(0,224,255,0.4); }
-      100% { text-shadow: 0 0 10px rgba(0,255,179,0.4), 0 0 20px rgba(0,255,179,0.2); }
-    }
-  `}
-      </style>
+  {/* Glow animation */}
+  <style>
+    {`
+      @keyframes logoGlow {
+        0% {
+          filter: drop-shadow(0 0 6px rgba(0,255,179,0.5))
+                  drop-shadow(0 0 12px rgba(0,224,255,0.4));
+        }
+        50% {
+          filter: drop-shadow(0 0 24px rgba(0,255,179,1))
+                  drop-shadow(0 0 48px rgba(0,224,255,0.9));
+        }
+        100% {
+          filter: drop-shadow(0 0 6px rgba(0,255,179,0.5))
+                  drop-shadow(0 0 12px rgba(0,224,255,0.4));
+        }
+      }
+    `}
+  </style>
+</header>
 
       {/* === Main Section === */}
       <div

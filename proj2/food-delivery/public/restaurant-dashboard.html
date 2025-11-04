@@ -108,14 +108,40 @@
     .badge, .btn {
   transition: all 0.2s ease-in-out;
 }
+                    /* Footer */
+    footer{
+      position:relative;
+      z-index:2;               
+      background:#ffffff;
+    }
+    footer .link-muted{
+      color:var(--muted);
+      text-decoration:none;
+    }
+    footer .link-muted:hover{
+      text-decoration:underline;
+      color:#0e0e0e;
+    }
+    /* Logo sizing */
+    .brand-logo {
+      height: 100px;      
+      width: auto;
+      display: inline-block;
+      vertical-align: middle;
+    }
 
+    footer .brand-logo {
+      height: 50px;      /* slightly smaller in footer */
+    }
 
   </style>
 </head>
 
 <body>
   <nav class="navbar navbar-expand px-3">
-    <a class="navbar-brand" href="/"><span style="color:#16a34a;">bite</span>code</a>
+    <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+        <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+      </a>
     <div class="ms-auto d-flex align-items-center gap-2">
       <span id="welcomePill" class="badge bg-light text-dark">Loading…</span>
       <a id="authButton" href="#" class="btn btn-outline-secondary btn-sm">Sign out</a>
