@@ -43,12 +43,10 @@ describe("PATCH /api/restaurant-dashboard/orders/:id/status (Restaurant updates 
     // 3️⃣ Send PATCH request to update order status
     const res = await agent
       .patch(`/api/restaurant-dashboard/orders/${order._id}/status`)
-      .send({ status: "accepted" });
+      .send({ status: "preparing" });
 
-    console.log("📨 Response:", res.status, res.body);
-
-    // 4️⃣ Assertions
     expect(res.status).toBe(200);
-    expect(res.body).toHaveProperty("status", "accepted");
+    expect(res.body).toHaveProperty("status", "preparing");
+
   });
 });

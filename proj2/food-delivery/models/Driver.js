@@ -6,6 +6,7 @@ const driverSchema = new mongoose.Schema({
   address: { type: String, required: true },
   vehicleType: { type: String, required: true },
   vehicleNumber: { type: String, required: true },
+  isActive: { type: Boolean, default: true },
   licenseNumber: { type: String, required: true },
 });
 

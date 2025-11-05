@@ -4,11 +4,53 @@ import Driver from '../models/Driver.js';
 import ChallengeSession from "../models/ChallengeSession.js";
 const router = express.Router();
 
+// PATCH /api/driver/active
+router.patch("/active", async (req, res) => {
+  try {
+    const driverId = req.session.driverId;
+    if (!driverId) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    const { isActive } = req.body;
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({ error: "isActive (boolean) required" });
+    }
+
+    const driver = await Driver.findByIdAndUpdate(
+      driverId,
+      { isActive },
+      { new: true }
+    );
+
+    res.json({ ok: true, isActive: driver.isActive });
+  } catch (err) {
+    console.error("❌ Error updating driver active state:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.get('/orders/new', async (req, res) => {
   try {
+    const driverId = req.session.driverId;
+    if (!driverId) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+
+    //Fetch driver record to check active state
+    const driver = await Driver.findById(driverId);
+    if (!driver) {
+      return res.status(404).json({ error: "Driver not found" });
+    }
+
+    //If driver inactive, return empty list
+    if (!driver.isActive) {
+      return res.json([]); // no new orders shown
+    }
+
+    //If active, show available orders
     const orders = await Order.find({
-      status: { $in: ["placed", "preparing", "ready_for_pickup"] }, // ✅ added "ready_for_pickup"
+      status: { $in: ["placed", "preparing", "ready_for_pickup"] },
       driverId: null
     })
       .populate('restaurantId', 'name address') // pickup location
@@ -16,7 +58,7 @@ router.get('/orders/new', async (req, res) => {
 
     const updated = orders.map(o => ({
       ...o.toObject(),
-      deliveryPayment: o.deliveryPayment || 5, // default $5 per delivery
+      deliveryPayment: (o.deliveryPayment || 0) + 5, // default $5 per delivery
       restaurantLocation: o.restaurantId?.address || 'N/A',
       customerLocation: o.userId?.address || o.deliveryLocation || 'N/A'
     }));
