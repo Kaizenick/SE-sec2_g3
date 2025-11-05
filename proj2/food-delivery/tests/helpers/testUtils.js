@@ -1,36 +1,56 @@
-// tests/helpers/testUtils.js
 import mongoose from "mongoose";
 import request from "supertest";
 import { MongoMemoryServer } from "mongodb-memory-server";
-import app from "../../server.js";
 
-/** 🧱 Global Test Setup Helpers **/
 
-let mongoServer;
-let agent;
+let mongoServer = null;
+let __appRef = null;
 
-/**
- * Starts in-memory MongoDB and sets up a Supertest agent.
- */
 export async function setupTestDB() {
   mongoServer = await MongoMemoryServer.create();
   const uri = mongoServer.getUri();
+
+
   await mongoose.connect(uri);
-  agent = request.agent(app); // ✅ persists cookies/session between requests
-  return { agent };
+
+  const { default: app } = await import("../../server.js");
+
+  __appRef = app;
+
+ 
+  const agent = request.agent(app);
+
+  return { agent, app };
+}
+export function getApp() {
+  if (!__appRef) throw new Error("Call setupTestDB() before getApp()");
+  return __appRef;
 }
 
-/**
- * Cleanly close MongoDB + connections after all tests.
- */
+export function newAgent() {
+  if (!__appRef) throw new Error("Call setupTestDB() before newAgent()");
+  return request.agent(__appRef);
+}
+
+
 export async function closeTestDB() {
+  // optional: isolate each suite even harder
+  if (mongoose.connection.readyState === 1) {
+    // drop only if connected
+    if (mongoose.connection.db) {
+      try { await mongoose.connection.dropDatabase(); } catch {}
+    }
+  }
   await mongoose.disconnect();
-  await mongoServer.stop();
+
+  if (mongoServer) {
+    await mongoServer.stop();
+    mongoServer = null;
+  }
+
+  __appRef = null;
 }
 
-/**
- * Registers + logs in a new customer and returns its document + session agent.
- */
 export async function registerAndLoginCustomer(agent, overrides = {}) {
   const email = overrides.email || `user_${Date.now()}@test.com`;
   const password = overrides.password || "secret123";
@@ -48,19 +68,14 @@ export async function registerAndLoginCustomer(agent, overrides = {}) {
 
   await agent
     .post("/api/customer-auth/login")
-    .send({
-      email,
-      password,
-    })
+    .send({ email, password })
     .expect(200);
 
   const customer = await mongoose.model("CustomerAuth").findOne({ email });
   return { customer, email, password };
 }
 
-/**
- * Creates a restaurant and returns its object.
- */
+
 export async function createRestaurant(data = {}) {
   const Restaurant = mongoose.model("Restaurant");
   return await Restaurant.create({
@@ -71,14 +86,11 @@ export async function createRestaurant(data = {}) {
   });
 }
 
-/**
- * ✅ Registers + logs in a new restaurant admin and returns its restaurant info.
- */
+
 export async function registerAndLoginRestaurant(agent, overrides = {}) {
   const email = overrides.email || `rest_${Date.now()}@test.com`;
   const password = overrides.password || "flavor123";
 
-  // Register new restaurant
   await agent
     .post("/api/restaurant-auth/register")
     .send({
@@ -90,16 +102,11 @@ export async function registerAndLoginRestaurant(agent, overrides = {}) {
     })
     .expect(201);
 
-  // Login restaurant admin
   await agent
     .post("/api/restaurant-auth/login")
-    .send({
-      email,
-      password,
-    })
+    .send({ email, password })
     .expect(200);
 
-  // Verify session with /me
   const meRes = await agent.get("/api/restaurant-auth/me").expect(200);
   const restaurantId = meRes.body.restaurantId;
 
