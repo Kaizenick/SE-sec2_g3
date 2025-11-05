@@ -188,16 +188,42 @@ router.delete("/menu/:id", requireRestaurant, async (req, res) => {
 });
 
 // Update order status
-router.put("/order/:id/status", requireRestaurant, async (req, res) => {
+// router.put("/order/:id/status", requireRestaurant, async (req, res) => {
+//   try {
+//     const { status } = req.body;
+//     const order = await Order.findOneAndUpdate(
+//       { _id: req.params.id, restaurantId: req.session.restaurantId },
+//       { status },
+//       { new: true }
+//     );
+//     if (!order) return res.status(404).json({ error: "Order not found" });
+//     res.json({ ok: true, order });
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
+router.patch("/orders/:id/status", async (req, res) => {
   try {
+    const { id } = req.params;
     const { status } = req.body;
-    const order = await Order.findOneAndUpdate(
-      { _id: req.params.id, restaurantId: req.session.restaurantId },
-      { status },
-      { new: true }
-    );
-    if (!order) return res.status(404).json({ error: "Order not found" });
-    res.json({ ok: true, order });
+
+    if (!status) {
+      return res.status(400).json({ error: "status is required" });
+    }
+
+    // Restrict restaurant's allowed statuses
+    const allowedStatuses = ["preparing", "ready_for_pickup"];
+    if (!allowedStatuses.includes(status)) {
+      return res.status(403).json({ error: "Unauthorized status update" });
+    }
+
+    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
+    if (!updated) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    res.status(200).json(updated);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

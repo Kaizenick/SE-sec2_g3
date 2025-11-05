@@ -8,20 +8,23 @@ const router = express.Router();
 router.get('/orders/new', async (req, res) => {
   try {
     const orders = await Order.find({
-      status: { $in: ["placed", "preparing"] },
+      status: { $in: ["placed", "preparing", "ready_for_pickup"] }, // ✅ added "ready_for_pickup"
       driverId: null
     })
-      .populate('restaurantId', 'name address') // pickup
+      .populate('restaurantId', 'name address') // pickup location
       .populate('userId', 'name address');
+
     const updated = orders.map(o => ({
       ...o.toObject(),
       deliveryPayment: o.deliveryPayment || 5, // default $5 per delivery
       restaurantLocation: o.restaurantId?.address || 'N/A',
       customerLocation: o.userId?.address || o.deliveryLocation || 'N/A'
     }));
+
     console.log('📦 Sending orders to driver dashboard:', updated);
     res.json(updated);
   } catch (err) {
+    console.error("❌ Error fetching new orders:", err);
     res.status(500).send('Error fetching new orders');
   }
 });
