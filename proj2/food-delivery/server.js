@@ -117,13 +117,16 @@ app.use('/api', (req, res) => {
 
 
 // Fallback for SPA-style links (optional)
-app.get('*', (req, res) => {
+app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-if (process.env.NODE_ENV !== 'test'){
+
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
 }
+
 
 export default app;
