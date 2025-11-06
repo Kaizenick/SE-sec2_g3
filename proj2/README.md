@@ -188,7 +188,7 @@ It is unique and free from known trademark conflicts.
 
 This project is licensed under the **MIT License** — you’re free to use, modify, and distribute this software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
 
-See the [LICENSE](./LICENSE) file for more details.
+See the **[MIT License](../LICENSE)**. file for more details.
 
 
 ---
