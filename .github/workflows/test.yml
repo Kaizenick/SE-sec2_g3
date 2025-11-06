@@ -44,22 +44,33 @@ jobs:
     defaults:
       run:
         working-directory: proj2/food-delivery
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Use Node.js 20
-        uses: actions/setup-node@v4
+    services:
+      mongo:
+        image: mongo:6
+        ports: ['27017:27017']
+        options: >-
+          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      NODE_ENV: test
+      PLAYWRIGHT: '1'                       # <— key so server listens
+      MONGODB_URI: mongodb://127.0.0.1:27017/food_delivery_app
+      SESSION_SECRET: testsecret
+      JWT_SECRET: testjwt
+      HOST: 0.0.0.0
+      PORT: 3000
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
           cache-dependency-path: proj2/food-delivery/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci || npm install
-
-      - name: Install Playwright (browsers & deps)
-        run: npx playwright install --with-deps
-
-      - name: Run Playwright tests
-        run: npm run test:e2e
+      - run: npm ci || npm install
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
