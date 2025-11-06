@@ -118,20 +118,6 @@ Unit/integration tests (Jest, Node environment):
 ```bash
 npm test
 ```
-
-End‑to‑end tests (Playwright):
-
-```bash
-# Headless
-npm run test:e2e
-
-# With UI runner
-npm run test:e2e:ui
-
-# Headed browser
-npm run test:e2e:headed
-```
-
 ---
 
 ## 3. Judge0 Frontend (`proj2/judge0-frontend`)
