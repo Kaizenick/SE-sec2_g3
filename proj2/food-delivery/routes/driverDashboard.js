@@ -170,7 +170,7 @@ router.get('/payments', async (req, res) => {
     const payments = await Order.find({
       driverId,
       status: 'delivered',
-      updatedAt: { $gte: startDate, $lte: endDate }
+      updatedAt: { $gte: startDate, $lt: endDate }
     }).select('deliveryPayment updatedAt');
 
     const total = payments.reduce((sum, o) => sum + o.deliveryPayment, 0);
