@@ -30,6 +30,10 @@ router.get("/", async (req, res) => {
       ...o,
       challengeStatus: o.challengeStatus || "NOT_STARTED",
       appliedCode: o.appliedCode || null,
+      discount: o.discount ?? 0,     // ✅ Ensure always included
+      deliveryFee: o.deliveryFee ?? 0,
+      subtotal: o.subtotal ?? 0,
+      total: o.total ?? 0,
     }));
 
     res.json(enriched);

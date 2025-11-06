@@ -13,16 +13,25 @@
     rel="stylesheet" />
 
   <style>
+    html,
     body {
+      height: 100%;
+      margin: 0;
       font-family: "Poppins", sans-serif;
+      display: flex;
+      flex-direction: column;
+      color: #0e0e0e;
+    }
+
+    body {
       background: linear-gradient(to bottom, rgba(255, 255, 255, 0.0), rgba(255, 255, 255, 0.25)),
         url('https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?q=80&w=2400&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
-      margin: 0;
-      color: #0e0e0e;
+      position: relative;
     }
 
+    /* Dark translucent overlay spanning entire viewport */
     body::before {
       content: "";
       position: fixed;
@@ -31,21 +40,27 @@
       z-index: 0;
     }
 
+    /* Navbar */
     .navbar {
       background: rgba(255, 255, 255, 0.9) !important;
       backdrop-filter: blur(8px);
       border-bottom: 1px solid rgba(0, 0, 0, 0.06);
       font-weight: 600;
+      z-index: 3;
     }
 
+    /* Main fills space between navbar and footer */
     main.wrap {
+      flex: 1 0 auto;
       position: relative;
       z-index: 1;
-      padding: 40px 16px;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px;
     }
 
+    /* Dashboard card */
     .card {
       width: 100%;
       max-width: 1100px;
@@ -101,55 +116,71 @@
       color: #16a34a;
       font-weight: 600;
     }
+
     .list-group-item.unavailable {
       opacity: 0.6;
       text-decoration: line-through;
     }
-    .badge, .btn {
-  transition: all 0.2s ease-in-out;
-}
-                    /* Footer */
-    footer{
-      position:relative;
-      z-index:2;               
-      background:#ffffff;
+
+    .badge,
+    .btn {
+      transition: all 0.2s ease-in-out;
     }
-    footer .link-muted{
-      color:var(--muted);
-      text-decoration:none;
+
+    /* Footer always at the bottom */
+    footer {
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      z-index: 2;
     }
-    footer .link-muted:hover{
-      text-decoration:underline;
-      color:#0e0e0e;
+
+    footer .link-muted {
+      color: var(--muted);
+      text-decoration: none;
     }
+
+    footer .link-muted:hover {
+      text-decoration: underline;
+      color: #0e0e0e;
+    }
+
     /* Logo sizing */
     .brand-logo {
-      height: 100px;      
+      height: 100px;
       width: auto;
       display: inline-block;
       vertical-align: middle;
     }
 
     footer .brand-logo {
-      height: 50px;      /* slightly smaller in footer */
+      height: 50px;
     }
-
   </style>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand px-3">
-    <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+  <!-- NAV -->
+  <nav class="navbar sticky-top">
+    <div class="container py-2">
+      <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
         <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
       </a>
-    <div class="ms-auto d-flex align-items-center gap-2">
-      <span id="welcomePill" class="badge bg-light text-dark">Loading…</span>
-      <a id="authButton" href="#" class="btn btn-outline-secondary btn-sm">Sign out</a>
+
+      <div class="d-flex align-items-center gap-3 ms-auto">
+        <!-- Dynamic welcome text -->
+        <span id="welcomePill" class="text-muted small"></span>
+
+        <!-- Dynamic auth button -->
+        <a id="authButton" class="btn btn-outline-secondary btn-sm rounded-pill" href="#">Sign in</a>
+      </div>
     </div>
   </nav>
 
-  <main class="wrap">
-    <div class="card">
+
+  <main class="container py-5 wrap">
+    <div class="card p-4 rounded-4 shadow-sm">
       <ul class="nav nav-tabs px-4 pt-3" role="tablist">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#dashboard"
             type="button">Dashboard</button></li>
@@ -221,7 +252,8 @@
 
     // ✅ Add welcome name
     function setWelcome(name) {
-      document.getElementById("welcomePill").textContent = `Welcome, ${name}`;
+      const pill = document.getElementById("welcomePill");
+      pill.textContent = name ? `Welcome, ${name}` : "";
     }
 
     // ✅ Improved thumbnail handler
@@ -328,7 +360,7 @@
         credentials: "include"
       });
 
-     const data = await res.json();
+      const data = await res.json();
 
       if (res.ok && data.ok) {
         if (data.restaurantImageUrl) {
@@ -355,42 +387,43 @@
     //Update login/logout button dynamically
     function updateAuthButton(isLoggedIn) {
       const btn = document.getElementById("authButton");
+      if (!btn) return;
+
       if (isLoggedIn) {
         btn.textContent = "Sign out";
-        btn.href = "#";
         btn.onclick = async () => {
           await fetch(`${API_BASE}/restaurant-auth/logout`, {
             method: "POST",
-            credentials: "include"
+            credentials: "include",
           });
           location.reload();
         };
       } else {
         btn.textContent = "Sign in";
-        btn.href = "/restaurant-login.html";
+        btn.setAttribute("href", "/restaurant-login.html");
         btn.onclick = null;
       }
     }
 
-  function renderMenu(items) {
-  const list = document.getElementById("menuList");
-  list.innerHTML = "";
+    function renderMenu(items) {
+      const list = document.getElementById("menuList");
+      list.innerHTML = "";
 
-  items.forEach(i => {
-    const li = el("li", "list-group-item d-flex justify-content-between align-items-center");
-    li.dataset.id = i._id; // 🔑 allows editItem() to find the right element
+      items.forEach(i => {
+        const li = el("li", "list-group-item d-flex justify-content-between align-items-center");
+        li.dataset.id = i._id; // 🔑 allows editItem() to find the right element
 
 
-    li.innerHTML = `
+        li.innerHTML = `
       <div>
         <strong>${i.name}</strong> - $${i.price.toFixed(2)}
         <span class="badge ${i.isAvailable ? 'bg-success' : 'bg-secondary'} ms-2" id="badge-${i._id}">
           ${i.isAvailable ? 'Available' : 'Unavailable'}
         </span><br>
         <small>${i.description || ""}</small>
-        ${i.imageUrl 
-          ? `<div><img src="${new URL(i.imageUrl, location.origin)}" height="50" style="border-radius:8px;margin-top:6px;"></div>` 
-          : ""}
+        ${i.imageUrl
+            ? `<div><img src="${new URL(i.imageUrl, location.origin)}" height="50" style="border-radius:8px;margin-top:6px;"></div>`
+            : ""}
       </div>
 
       <div class="btn-group">
@@ -412,9 +445,9 @@
       </div>
     `;
 
-    list.appendChild(li);
-  });
-}
+        list.appendChild(li);
+      });
+    }
 
 
 
@@ -424,49 +457,49 @@
       loadDashboard();
     }
     async function toggleAvailability(id, newState) {
-  const btn = document.getElementById(`toggle-${id}`);
-  const badge = document.getElementById(`badge-${id}`);
+      const btn = document.getElementById(`toggle-${id}`);
+      const badge = document.getElementById(`badge-${id}`);
 
-  // immediate visual feedback
-  btn.disabled = true;
-  btn.textContent = "Updating…";
+      // immediate visual feedback
+      btn.disabled = true;
+      btn.textContent = "Updating…";
 
-  const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}/availability`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ isAvailable: newState })
-  });
+      const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}/availability`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ isAvailable: newState })
+      });
 
-  if (res.ok) {
-    // flip the appearance without reloading whole dashboard
-    btn.disabled = false;
-    btn.classList.toggle("btn-success", newState);
-    btn.classList.toggle("btn-outline-secondary", !newState);
-    btn.textContent = newState ? "✓ Available" : "✗ Unavailable";
+      if (res.ok) {
+        // flip the appearance without reloading whole dashboard
+        btn.disabled = false;
+        btn.classList.toggle("btn-success", newState);
+        btn.classList.toggle("btn-outline-secondary", !newState);
+        btn.textContent = newState ? "✓ Available" : "✗ Unavailable";
 
-    badge.classList.toggle("bg-success", newState);
-    badge.classList.toggle("bg-secondary", !newState);
-    badge.textContent = newState ? "Available" : "Unavailable";
+        badge.classList.toggle("bg-success", newState);
+        badge.classList.toggle("bg-secondary", !newState);
+        badge.textContent = newState ? "Available" : "Unavailable";
 
-    // optionally update onclick state for next toggle
-    btn.setAttribute("onclick", `toggleAvailability('${id}', ${!newState})`);
-  } else {
-    btn.disabled = false;
-    btn.textContent = "Error!";
-    alert("Failed to update availability");
-  }
-}
+        // optionally update onclick state for next toggle
+        btn.setAttribute("onclick", `toggleAvailability('${id}', ${!newState})`);
+      } else {
+        btn.disabled = false;
+        btn.textContent = "Error!";
+        alert("Failed to update availability");
+      }
+    }
 
 
-// Simple prompt-based editing — replace with modal if you prefer
-// Inline editor for menu items (no popups)
-async function editItem(id, currentName, currentDesc, currentPrice, currentImg) {
-  const li = document.querySelector(`#menuList li[data-id="${id}"]`);
-  if (!li) return;
+    // Simple prompt-based editing — replace with modal if you prefer
+    // Inline editor for menu items (no popups)
+    async function editItem(id, currentName, currentDesc, currentPrice, currentImg) {
+      const li = document.querySelector(`#menuList li[data-id="${id}"]`);
+      if (!li) return;
 
-  // Replace item display with editable fields
-  li.innerHTML = `
+      // Replace item display with editable fields
+      li.innerHTML = `
     <div class="w-100">
       <div class="mb-2">
         <label class="form-label fw-semibold">Name</label>
@@ -494,37 +527,37 @@ async function editItem(id, currentName, currentDesc, currentPrice, currentImg) 
       </div>
     </div>
   `;
-}
+    }
 
-async function saveEdit(id) {
-  const name = document.getElementById(`edit-name-${id}`).value.trim();
-  const description = document.getElementById(`edit-desc-${id}`).value.trim();
-  const price = parseFloat(document.getElementById(`edit-price-${id}`).value);
-  const imageUrl = document.getElementById(`edit-img-${id}`).value.trim();
+    async function saveEdit(id) {
+      const name = document.getElementById(`edit-name-${id}`).value.trim();
+      const description = document.getElementById(`edit-desc-${id}`).value.trim();
+      const price = parseFloat(document.getElementById(`edit-price-${id}`).value);
+      const imageUrl = document.getElementById(`edit-img-${id}`).value.trim();
 
-  if (!name || isNaN(price)) {
-    alert("Please enter a valid name and price.");
-    return;
-  }
+      if (!name || isNaN(price)) {
+        alert("Please enter a valid name and price.");
+        return;
+      }
 
-  const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({ name, description, price, imageUrl })
-  });
+      const res = await fetch(`${API_BASE}/restaurant-dashboard/menu/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ name, description, price, imageUrl })
+      });
 
-  if (res.ok) {
-    loadDashboard();
-  } else {
-    const data = await res.json().catch(() => ({}));
-    alert("Failed to update item: " + (data.error || "unknown error"));
-  }
-}
+      if (res.ok) {
+        loadDashboard();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert("Failed to update item: " + (data.error || "unknown error"));
+      }
+    }
 
-function cancelEdit(id) {
-  loadDashboard(); // reloads to restore normal view
-}
+    function cancelEdit(id) {
+      loadDashboard(); // reloads to restore normal view
+    }
 
 
     loadDashboard();
@@ -535,76 +568,64 @@ function cancelEdit(id) {
         wrap.innerHTML = '<div class="alert alert-light text-dark">No incoming orders yet.</div>';
         return;
       }
-      wrap.innerHTML = orders.map(o => {
-        const disabled = o.status === 'out_for_delivery' ? 'disabled' : '';
-        const itemsHtml = (o.items || []).map(it => `
-      <div class="d-flex justify-content-between">
-        <div>${it.name} x${it.quantity}</div>
-        <div>$${(Number(it.price || 0) * Number(it.quantity || 1)).toFixed(2)}</div>
-      </div>`).join('');
+      wrap.innerHTML = orders
+        .map((o) => {
+          const status = o.status || "placed";
+          const itemsHtml = (o.items || [])
+            .map(
+              (it) => `
+        <div class="d-flex justify-content-between">
+          <div>${it.name} x${it.quantity}</div>
+          <div>$${(Number(it.price || 0) * Number(it.quantity || 1)).toFixed(2)}</div>
+        </div>`
+            )
+            .join("");
 
-        const statusBadge = `<span class="badge bg-info text-uppercase">${(o.status || 'placed').replaceAll('_', ' ')}</span>`;
+          const statusBadge = `<span class="badge bg-info text-uppercase">${status.replaceAll(
+            "_",
+            " "
+          )}</span>`;
 
-        return `
-      <div class="card mb-3">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <div class="fw-semibold">Order #${o._id}</div>
-              <div class="text-secondary small">${new Date(o.createdAt).toLocaleString()}</div>
-              <div class="mt-2">${statusBadge}</div>
+          // disable rules by status
+          const disablePrep = ["ready_for_pickup", "out_for_delivery", "delivered"].includes(status);
+          const disableReady = ["out_for_delivery", "delivered"].includes(status);
+          const disableOFD = ["delivered"].includes(status);
+
+          return `
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">Order #${o._id}</div>
+                <div class="text-secondary small">${new Date(o.createdAt).toLocaleString()}</div>
+                <div class="mt-2">${statusBadge}</div>
+              </div>
+              <div class="text-end">
+                <div>Subtotal: <strong>$${Number(o.subtotal || 0).toFixed(2)}</strong></div>
+                <div>Delivery: <strong>$${Number(o.deliveryFee || 0).toFixed(2)}</strong></div>
+                <div>Total: <span class="fs-5 fw-bold">$${Number(o.total || 0).toFixed(2)}</span></div>
+              </div>
             </div>
-            <div class="text-end">
-              <div>Subtotal: <strong>$${Number(o.subtotal || 0).toFixed(2)}</strong></div>
-              <div>Delivery: <strong>$${Number(o.deliveryFee || 0).toFixed(2)}</strong></div>
-              <div>Total: <span class="fs-5 fw-bold">$${Number(o.total || 0).toFixed(2)}</span></div>
-            </div>
-          </div>
-          <hr class="my-2">
+            <hr class="my-2">
             ${itemsHtml}
             <div class="mt-3 d-flex gap-2">
-              <button class="btn btn-sm btn-outline-secondary" ${disabled} onclick="updateOrderStatus('${o._id}','preparing')">Mark Preparing</button>
-              <button class="btn btn-sm btn-warning" ${disabled} onclick="updateOrderStatus('${o._id}','ready_for_pickup')">Ready for Pickup</button>
-              <button class="btn btn-sm btn-outline-primary" ${disabled} onclick="updateOrderStatus('${o._id}','out_for_delivery')">Out for Delivery</button>
-            </div>
-        </div>
-      </div>`;
-      }).join('');
-    }
+              <button class="btn btn-sm btn-outline-secondary"
+                ${disablePrep ? "disabled" : ""}
+                onclick="updateOrderStatus('${o._id}','preparing')">Mark Preparing</button>
 
-    function renderDelivered(orders) {
-      const wrap = document.getElementById("deliveredList");
-      if (!orders || orders.length === 0) {
-        wrap.innerHTML = '<div class="alert alert-light text-dark">No delivered orders yet.</div>';
-        return;
-      }
-      wrap.innerHTML = orders.map(o => {
-        const itemsHtml = (o.items || []).map(it => `
-      <div class="d-flex justify-content-between">
-        <div>${it.name} x${it.quantity}</div>
-        <div>$${(Number(it.price || 0) * Number(it.quantity || 1)).toFixed(2)}</div>
-      </div>`).join('');
+              <button class="btn btn-sm btn-warning"
+                ${disableReady ? "disabled" : ""}
+                onclick="updateOrderStatus('${o._id}','ready_for_pickup')">Ready for Pickup</button>
 
-        return `
-      <div class="card mb-3">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <div class="fw-semibold">Order #${o._id}</div>
-              <div class="text-secondary small">${new Date(o.createdAt).toLocaleString()}</div>
-              <span class="badge bg-success text-uppercase">Delivered</span>
-            </div>
-            <div class="text-end">
-              <div>Subtotal: <strong>$${Number(o.subtotal || 0).toFixed(2)}</strong></div>
-              <div>Delivery: <strong>$${Number(o.deliveryFee || 0).toFixed(2)}</strong></div>
-              <div>Total: <span class="fs-5 fw-bold">$${Number(o.total || 0).toFixed(2)}</span></div>
+              <button class="btn btn-sm btn-outline-primary"
+                ${disableOFD ? "disabled" : ""}
+                onclick="updateOrderStatus('${o._id}','out_for_delivery')">Out for Delivery</button>
             </div>
           </div>
-          <hr class="my-2">
-          ${itemsHtml}
-        </div>
-      </div>`;
-      }).join('');
+        </div>`;
+        })
+        .join("");
+
     }
 
     async function updateOrderStatus(id, status) {
@@ -623,6 +644,54 @@ function cancelEdit(id) {
     }
 
   </script>
+
+  <!-- FOOTER -->
+  <footer class="border-top bg-white mt-5">
+    <div class="container py-5">
+      <div class="row gy-4">
+        <div class="col-12 col-md-4 text-center text-md-start">
+          <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+            <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+          </a>
+          <p class="small text-muted mb-0">
+            © <span id="yearFooter"></span> BiteCode — Because coding’s better with curry 🥘
+          </p>
+        </div>
+
+        <div class="col-12 col-md-4 text-center">
+          <h6 class="fw-bold text-uppercase text-muted mb-3">Dashboards</h6>
+          <ul class="list-unstyled small mb-0">
+            <li class="mb-2"><a class="link-muted" href="/customer-login.html">Customer Login</a></li>
+            <li class="mb-2"><a class="link-muted" href="/driver-login.html">Driver Login</a></li>
+            <li class="mb-2"><a class="link-muted" href="/restaurant-login.html">Restaurant Login</a></li>
+          </ul>
+        </div>
+
+        <div class="col-12 col-md-4 text-center text-md-end">
+          <h6 class="fw-bold text-uppercase text-muted mb-3">Get Started</h6>
+          <ul class="list-unstyled small mb-4">
+            <li class="mb-2"><a class="link-muted" href="/customer-register.html">Join as a Customer</a></li>
+            <li class="mb-2"><a class="link-muted" href="/register-driver.html">Partner as a Driver</a></li>
+            <li class="mb-2"><a class="link-muted" href="/restaurant-register.html">Register a Restaurant 🍽️</a></li>
+          </ul>
+
+          <ul class="list-unstyled small mb-0 d-flex justify-content-center justify-content-md-end gap-3">
+            <li><a class="link-muted" href="https://www.instagram.com/bitecode" target="_blank"><i
+                  class="bi bi-instagram fs-4"></i></a></li>
+            <li><a class="link-muted" href="https://x.com/bitecode" target="_blank"><i
+                  class="bi bi-twitter-x fs-4"></i></a></li>
+            <li><a class="link-muted" href="https://facebook.com/bitecode" target="_blank"><i
+                  class="bi bi-facebook fs-4"></i></a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("yearFooter").textContent = new Date().getFullYear();
+  </script>
+
 </body>
 
 </html>

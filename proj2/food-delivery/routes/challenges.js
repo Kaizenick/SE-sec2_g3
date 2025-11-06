@@ -40,6 +40,7 @@ router.post("/start", async (req, res) => {
 });
 
 // 2. Get challenge session info (for Judge0 UI)
+// 2. Get challenge session info (for Judge0 UI)
 router.get("/session", async (req, res) => {
   try {
     const token = req.query?.token;
@@ -48,6 +49,18 @@ router.get("/session", async (req, res) => {
     const payload = jwt.verify(token, CHALLENGE_JWT_SECRET);
     const sess = await ChallengeSession.findById(payload.sid);
     if (!sess) return res.status(404).json({ error: "Session not found" });
+
+    // 🔴 NEW: if the linked order is delivered, expire the session immediately
+    const order = await Order.findById(sess.orderId);
+    if (order?.status === "delivered") {
+      if (sess.status === "ACTIVE") {
+        sess.status = "EXPIRED";
+        sess.expiresAt = new Date();
+        await sess.save();
+      }
+      return res.status(410).json({ error: "Session expired (order delivered)" });
+    }
+
     if (sess.status !== "ACTIVE" || sess.expiresAt <= new Date())
       return res.status(410).json({ error: "Session expired" });
 
@@ -62,6 +75,7 @@ router.get("/session", async (req, res) => {
     res.status(code).json({ error: "Invalid or expired token" });
   }
 });
+
 
 // 3. Complete challenge (called when user solves it)
 router.post("/complete", async (req, res) => {
@@ -101,7 +115,46 @@ router.post("/complete", async (req, res) => {
   }
 });
 
-// 4. Mark challenge as failed / expired (optional)
+// 4. Record a failed run; expire if delivery is done
+router.post("/result", async (req, res) => {
+  try {
+    const { token, passed } = req.body || {};
+    if (!token) return res.status(400).json({ error: "token required" });
+
+    const payload = jwt.verify(token, CHALLENGE_JWT_SECRET);
+    const sess = await ChallengeSession.findById(payload.sid);
+    if (!sess) return res.status(404).json({ error: "Session not found" });
+
+    // if already closed, just acknowledge
+    if (sess.status !== "ACTIVE") return res.json({ ok: true, closed: true });
+
+    // If the run PASSED, do nothing here — /complete will handle coupon & WIN
+    if (passed === true) return res.json({ ok: true });
+
+    // On FAIL: if order is delivered, expire the session now (no more tries)
+    const order = await Order.findById(sess.orderId);
+    if (order?.status === "delivered") {
+      sess.status = "EXPIRED";
+      sess.expiresAt = new Date();
+      await sess.save();
+
+      await Order.findByIdAndUpdate(sess.orderId, {
+        $set: { challengeStatus: "FAILED_AFTER_DELIVERY" }
+      });
+
+      return res.status(410).json({ error: "Time up — order delivered" });
+    }
+
+    // Otherwise (not delivered yet), just ack the failure (user can try again)
+    return res.json({ ok: true });
+  } catch (err) {
+    const code = err?.name === "TokenExpiredError" ? 410 : 401;
+    res.status(code).json({ error: "Invalid or expired token" });
+  }
+});
+
+
+// 5. Mark challenge as failed / expired (optional)
 router.post("/fail", async (req, res) => {
   try {
     const { token } = req.body || {};

@@ -81,31 +81,36 @@
             position: relative;
             z-index: 2;
         }
-                /* Footer */
-    footer{
-      position:relative;
-      z-index:2;               
-      background:#ffffff;
-    }
-    footer .link-muted{
-      color:var(--muted);
-      text-decoration:none;
-    }
-    footer .link-muted:hover{
-      text-decoration:underline;
-      color:#0e0e0e;
-    }
-    /* Logo sizing */
-    .brand-logo {
-      height: 100px;      
-      width: auto;
-      display: inline-block;
-      vertical-align: middle;
-    }
 
-    footer .brand-logo {
-      height: 50px;      /* slightly smaller in footer */
-    }
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 2;
+            background: #ffffff;
+        }
+
+        footer .link-muted {
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        footer .link-muted:hover {
+            text-decoration: underline;
+            color: #0e0e0e;
+        }
+
+        /* Logo sizing */
+        .brand-logo {
+            height: 100px;
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        footer .brand-logo {
+            height: 50px;
+            /* slightly smaller in footer */
+        }
     </style>
 </head>
 
@@ -113,9 +118,9 @@
     <!-- NAV -->
     <nav class="navbar sticky-top">
         <div class="container py-2">
-                  <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
-        <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
-      </a>
+            <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+                <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+            </a>
             <div class="d-flex align-items-center gap-2 ms-auto">
                 <a class="btn btn-outline-secondary rounded-pill" href="/orders.html">My Orders</a>
                 <a class="btn btn-outline-primary rounded-pill" href="/cart.html">Cart</a>
@@ -153,82 +158,94 @@
                         </div>
                     </div>
 
-                    <!-- Coupon info -->
+                    <!-- COUPON SELECTION -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Apply a Coupon</label>
+                        <div id="couponList" class="list-group small"></div>
+                    </div>
+
                     <div id="couponBanner" class="alert alert-success d-none text-center py-2 small mb-3"></div>
 
-                    <button class="btn pay-btn w-100 py-2" type="submit">Pay Now</button>
+                    <div class="text-center mt-2 small text-muted">
+                        <span>Total: <strong id="payTotal">$0.00</strong></span>
+                    </div>
+
+                    <button class="btn btn-success w-100 py-2 pay-btn" type="submit">
+                        Pay Now
+                    </button>
                 </form>
             </div>
         </div>
     </main>
 
     <footer class="border-top bg-white">
-    <div class="container py-5">
-        <div class="row gy-4">
-        <!-- Left brand block -->
-        <div class="col-12 col-md-4 text-center text-md-start">
-            <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
-            <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
-            </a>
-            <p class="small text-muted mb-0">
-            © 2025 -<span id="yearFooter"></span> Because coding’s better with curry 🥘
-            </p>
-        </div>
+        <div class="container py-5">
+            <div class="row gy-4">
+                <!-- Left brand block -->
+                <div class="col-12 col-md-4 text-center text-md-start">
+                    <a class="navbar-brand d-inline-flex align-items-center gap-2" href="/index.html">
+                        <img src="/assets/BiteCodeNOBG.png" alt="BiteCode logo" class="brand-logo">
+                    </a>
+                    <p class="small text-muted mb-0">
+                        © <span id="yearFooter"></span> BiteCode — Because coding’s better with curry 🥘
+                    </p>
+                </div>
 
-        <!-- Middle stacked dashboards -->
-        <div class="col-12 col-md-4 text-center">
-            <h6 class="fw-bold text-uppercase text-muted mb-3">Dashboards</h6>
-            <ul class="list-unstyled small mb-0">
-            <li class="mb-2">
-                <a class="link-muted" href="/customer-login.html">Customer Login</a>
-            </li>
-            <li class="mb-2">
-                <a class="link-muted" href="/driver-login.html">Driver Login</a>
-            </li>
-            <li class="mb-2">
-                <a class="link-muted" href="/restaurant-login.html">Restaurant Login</a>
-            </li>
-            </ul>
-        </div>
+                <!-- Middle stacked dashboards -->
+                <div class="col-12 col-md-4 text-center">
+                    <h6 class="fw-bold text-uppercase text-muted mb-3">Dashboards</h6>
+                    <ul class="list-unstyled small mb-0">
+                        <li class="mb-2">
+                            <a class="link-muted" href="/customer-login.html">Customer Login</a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="link-muted" href="/driver-login.html">Driver Login</a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="link-muted" href="/restaurant-login.html">Restaurant Login</a>
+                        </li>
+                    </ul>
+                </div>
 
-        <!-- Right playful links + socials -->
-        <div class="col-12 col-md-4 text-center text-md-end">
-            <h6 class="fw-bold text-uppercase text-muted mb-3">Get Started</h6>
-            <ul class="list-unstyled small mb-4">
-            <li class="mb-2">
-                <a class="link-muted" href="/customer-register.html">New here? Join as a Customer</a>
-            </li>
-            <li class="mb-2">
-                <a class="link-muted" href="/register-driver.html">Want to drive? Partner with us</a>
-            </li>
-            <li class="mb-2">
-                <a class="link-muted" href="/restaurant-register.html">Own a restaurant? Increase your reach 🍽️</a>
-            </li>
-            </ul>
+                <!-- Right playful links + socials -->
+                <div class="col-12 col-md-4 text-center text-md-end">
+                    <h6 class="fw-bold text-uppercase text-muted mb-3">Get Started</h6>
+                    <ul class="list-unstyled small mb-4">
+                        <li class="mb-2">
+                            <a class="link-muted" href="/customer-register.html">New here? Join as a Customer</a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="link-muted" href="/register-driver.html">Want to drive? Partner with us</a>
+                        </li>
+                        <li class="mb-2">
+                            <a class="link-muted" href="/restaurant-register.html">Own a restaurant? Increase your reach
+                                🍽️</a>
+                        </li>
+                    </ul>
 
-            <ul class="list-unstyled small mb-0 d-flex justify-content-center justify-content-md-end gap-3">
-            <li>
-                <a class="link-muted" href="https://www.instagram.com/bitecode" target="_blank"
-                aria-label="Instagram" title="Instagram">
-                <i class="bi bi-instagram fs-4"></i>
-                </a>
-            </li>
-            <li>
-                <a class="link-muted" href="https://x.com/bitecode" target="_blank"
-                aria-label="Twitter/X" title="Twitter/X">
-                <i class="bi bi-twitter-x fs-4"></i>
-                </a>
-            </li>
-            <li>
-                <a class="link-muted" href="https://facebook.com/bitecode" target="_blank"
-                aria-label="Facebook" title="Facebook">
-                <i class="bi bi-facebook fs-4"></i>
-                </a>
-            </li>
-            </ul>
+                    <ul class="list-unstyled small mb-0 d-flex justify-content-center justify-content-md-end gap-3">
+                        <li>
+                            <a class="link-muted" href="https://www.instagram.com/bitecode" target="_blank"
+                                aria-label="Instagram" title="Instagram">
+                                <i class="bi bi-instagram fs-4"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="link-muted" href="https://x.com/bitecode" target="_blank" aria-label="Twitter/X"
+                                title="Twitter/X">
+                                <i class="bi bi-twitter-x fs-4"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="link-muted" href="https://facebook.com/bitecode" target="_blank"
+                                aria-label="Facebook" title="Facebook">
+                                <i class="bi bi-facebook fs-4"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
         </div>
-        </div>
-    </div>
     </footer>
 
     <script>
@@ -245,6 +262,106 @@
 
         const payBtn = form.querySelector('.pay-btn') || document.querySelector('button[type="submit"]');
         payBtn.disabled = true; // default disabled until valid
+
+        const API_BASE = "/api";
+        let selectedCoupon = null;
+        let currentSubtotal = 0;
+        let currentDelivery = 0;
+
+        // Normalize coupon % field: supports discountPct, discountPercentage, percent, percentage, off, pct
+        const toNum = (v) => Number.isFinite(+v) ? +v : 0;
+        function getCouponPct(c) {
+            return toNum(c?.discountPct ?? c?.discountPercentage ?? c?.percent ?? c?.percentage ?? c?.off ?? c?.pct);
+        }
+
+
+        // Fetch available coupons
+        async function loadCoupons() {
+            try {
+                const res = await fetch(`${API_BASE}/coupons`, { credentials: "include" });
+                if (!res.ok) return;
+                const coupons = await res.json();
+                const list = document.getElementById("couponList");
+                list.innerHTML = "";
+
+                if (!coupons.length) {
+                    list.innerHTML =
+                        '<div class="text-muted small">No active coupons yet. Complete a coding challenge to earn one!</div>';
+                    return;
+                }
+
+                coupons.forEach((c) => {
+                    const btn = document.createElement("button");
+                    btn.type = "button";
+                    btn.className =
+                        "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+                    btn.innerHTML = `
+                     <span><strong>${c.code}</strong> <small class="text-muted">💰 ${getCouponPct(c)}% Discount</small></span>
+                     <span>${getCouponPct(c)}% off</span>`;
+
+                    btn.addEventListener("click", () => {
+                        selectedCoupon = c;
+                        document.querySelectorAll("#couponList .list-group-item")
+                            .forEach((el) => el.classList.remove("active"));
+                        btn.classList.add("active");
+                        updateTotalPreview();
+                    });
+                    list.appendChild(btn);
+                });
+            } catch (err) {
+                console.error("Failed to load coupons", err);
+            }
+        }
+
+        // Compute total preview
+        async function fetchCartTotals() {
+            try {
+                const res = await fetch(`${API_BASE}/cart`, { credentials: "include" });
+                if (!res.ok) return;
+                const data = await res.json();
+                const items = Array.isArray(data) ? data : data.cart || [];
+
+                currentSubtotal = items.reduce((sum, i) => {
+                    let price = 0;
+                    if (i?.menuItemId?.price) {
+                        price = Number(i.menuItemId.price);
+                    } else if (i?.price) {
+                        price = i.price;
+                    } else if (typeof i === "object" && i.name && i.quantity && i.totalPrice) {
+                        // fallback if backend returns compact cart summary
+                        price = i.totalPrice / i.quantity;
+                    }
+                    return Number(sum) + Number((price) * Number(i.quantity || 1));
+                }, 0);
+
+                console.log("Calculated subtotal from cart:", currentSubtotal);
+                currentDelivery = 0;
+                updateTotalPreview();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function updateTotalPreview() {
+            const banner = document.getElementById("couponBanner");
+            let discount = 0;
+
+            if (selectedCoupon && currentSubtotal > 0) {
+                const pct = getCouponPct(selectedCoupon);
+                discount = Math.round((Number(currentSubtotal) * pct) / 100);
+                banner.classList.remove("d-none");
+                banner.textContent = `Applied ${selectedCoupon.code} — ${pct}% off (You save $${discount.toFixed(2)}).`;
+            } else {
+                banner.classList.add("d-none");
+                banner.textContent = "";
+            }
+
+
+            const totalEl = document.getElementById("payTotal");
+            const total = Math.max(currentSubtotal + currentDelivery - discount, 0);
+            totalEl.textContent = `$${total.toFixed(2)}`;
+        }
+
 
         // Add small inline feedback elements
         function ensureHint(el, idSuffix, text = '') {
@@ -266,7 +383,7 @@
         /* ---------- Card formatting (groups of 4) ---------- */
         cardInput.addEventListener('input', (e) => {
             const pos = cardInput.selectionStart;
-            const raw = onlyDigits(cardInput.value).slice(0, 19); // allow up to 19 digits
+            const raw = onlyDigits(cardInput.value).slice(0, 16); // allow up to 16 digits
             const grouped = chunk(raw, 4).join(' ');
             cardInput.value = grouped;
 
@@ -306,7 +423,7 @@
         expiryInput.addEventListener('blur', validateExpiry);
 
         /* ---------- CVV constraints ---------- */
-        cvvInput.setAttribute('maxlength', '4'); // accept 3 or 4
+        cvvInput.setAttribute('maxlength', '3'); // accept 3
         cvvInput.addEventListener('input', (e) => {
             cvvInput.value = onlyDigits(cvvInput.value).slice(0, 4);
             validateAll();
@@ -389,8 +506,11 @@
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
                     // we don't need to send card details to server for mock flow
-                    body: JSON.stringify({})
+                    body: JSON.stringify({
+                        couponCode: selectedCoupon ? selectedCoupon.code : null
+                    })
                 });
+
                 const data = await res.json();
                 if (res.ok && data.ok) {
                     alert(data.message + (data.discountApplied ? `\n🎁 ${data.discountApplied}` : ""));
@@ -410,6 +530,10 @@
 
         /* ---------- Run initial validation to set button state ---------- */
         validateAll();
+        window.addEventListener("DOMContentLoaded", () => {
+            fetchCartTotals();
+            loadCoupons();
+        });
     </script>
 
 </body>

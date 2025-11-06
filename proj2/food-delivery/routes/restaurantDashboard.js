@@ -89,19 +89,26 @@ router.post("/photo", requireRestaurant, async (req, res) => {
 });
 
 
-// Fetch dashboard data (name + menu + orders)
+// Fetch dashboard data (always fresh)
 router.get("/data", requireRestaurant, async (req, res) => {
   try {
     const restaurantId = req.session.restaurantId;
 
-    // ✅ load the restaurant to get its imageUrl
     const restaurant = await Restaurant.findById(restaurantId);
-
     const menuItems = await MenuItem.find({ restaurantId });
-    const orders = await Order.find({ restaurantId }).sort({ createdAt: -1 });
 
-    // console.log("📋 Menu items for restaurant:", restaurantId);
-    // console.log(menuItems);
+    // fetch orders live (no cache)
+    const orders = await Order.find({ restaurantId })
+      .sort({ updatedAt: -1 })
+      .lean();
+
+    console.log(
+      "📦 Restaurant dashboard fetched",
+      orders.length,
+      "orders:",
+      orders.map(o => o.status)
+    );
+
     res.json({
       ok: true,
       restaurantName: req.session.restaurantName || "Restaurant",
@@ -115,7 +122,7 @@ router.get("/data", requireRestaurant, async (req, res) => {
   }
 });
 
-// Create menu item
+
 // Create menu item
 router.post("/menu", requireRestaurant, async (req, res) => {
   try {
@@ -137,7 +144,7 @@ router.post("/menu", requireRestaurant, async (req, res) => {
   }
 });
 
-// ✅ Set availability (idempotent)
+// Set availability (idempotent)
 router.patch("/menu/:id/availability", requireRestaurant, async (req, res) => {
   try {
     const { isAvailable } = req.body;
@@ -203,7 +210,8 @@ router.delete("/menu/:id", requireRestaurant, async (req, res) => {
 //   }
 // });
 
-router.patch("/orders/:id/status", async (req, res) => {
+// Single unified status route
+router.patch("/orders/:id/status", requireRestaurant, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -212,8 +220,8 @@ router.patch("/orders/:id/status", async (req, res) => {
       return res.status(400).json({ error: "status is required" });
     }
 
-    // Restrict restaurant's allowed statuses
-    const allowedStatuses = ["preparing", "ready_for_pickup",  "out_for_delivery"];
+    // Restrict restaurant’s allowed statuses
+    const allowedStatuses = ["preparing", "ready_for_pickup", "out_for_delivery"];
     if (!allowedStatuses.includes(status)) {
       return res.status(403).json({ error: "Unauthorized status update" });
     }
@@ -229,7 +237,8 @@ router.patch("/orders/:id/status", async (req, res) => {
   }
 });
 
-// (optional) public fetch by restaurantId
+
+// public fetch by restaurantId
 router.get("/orders", async (req, res) => {
   try {
     const { restaurantId } = req.query;
@@ -244,25 +253,5 @@ router.get("/orders", async (req, res) => {
   }
 });
 
-// Alternate PATCH route for updates
-router.patch("/orders/:id/status", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-
-    if (!status) {
-      return res.status(400).json({ error: "status is required" });
-    }
-
-    const updated = await Order.findByIdAndUpdate(id, { status }, { new: true });
-    if (!updated) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
-    res.status(200).json(updated);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 export default router;

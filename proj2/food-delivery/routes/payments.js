@@ -2,6 +2,7 @@
 import express from "express";
 import Cart from "../models/CartItem.js";
 import Order from "../models/Order.js";
+import Coupon from "../models/Coupon.js";
 
 const router = express.Router();
 
@@ -30,13 +31,31 @@ router.post("/mock-checkout", async (req, res) => {
     // Calculate totals
     const subtotal = items.reduce((sum, i) => sum + i.menuItemId.price * i.quantity, 0);
     const deliveryFee = 0;
-    const total = subtotal + deliveryFee;
+
+    let appliedCode = null;
+    let discount = 0;
+    const { couponCode } = req.body || {};
+    if (couponCode) {
+      const coupon = await Coupon.findOne({
+        code: couponCode,
+        userId: customerId,
+        applied: false,
+        expiresAt: { $gt: new Date() },
+      });
+      if (coupon) {
+        appliedCode = coupon.code;
+        // Apply % discount on subtotal
+        discount = Math.round((subtotal * (coupon.discountPct || 0)) / 100);
+      }
+    }
+
+    const finalTotal = Math.max(subtotal + deliveryFee - discount, 0);
 
     // Create an order: "placed" + "paid"
     const order = await Order.create({
       userId: customerId,
       restaurantId: items[0].menuItemId.restaurantId._id, // ensure it's the ID
-      items: items.map(i => ({
+      items: items.map((i) => ({
         menuItemId: i.menuItemId._id,
         name: i.menuItemId.name,
         price: i.menuItemId.price,
@@ -44,7 +63,9 @@ router.post("/mock-checkout", async (req, res) => {
       })),
       subtotal,
       deliveryFee,
-      total,
+      discount,
+      appliedCode,
+      total: finalTotal,
       status: "placed",         // valid enum
       paymentStatus: "paid"     // now tracked separately
     });
@@ -52,10 +73,21 @@ router.post("/mock-checkout", async (req, res) => {
     //Clear the cart after successful order
     await Cart.deleteMany({ userId: customerId });
 
+    // Mark coupon as applied if one was used
+    if (appliedCode) {
+      await Coupon.updateOne(
+        { code: appliedCode, userId: customerId },
+        { $set: { applied: true } }
+      );
+    }
+
     return res.json({
       ok: true,
       message: "Payment successful! Your order has been placed.",
-      orderId: order._id
+      orderId: order._id,
+      discountApplied: appliedCode
+        ? `Coupon ${appliedCode} applied: -$${discount}`
+        : null,
     });
   } catch (err) {
     console.error("Payment error:", err);

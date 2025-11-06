@@ -111,9 +111,10 @@ router.post('/orders/accept/:id', async (req, res) => {
 router.get('/orders/pending', async (req, res) => {
   try {
     const driverId = req.session.driverId;
-    const orders = await Order.find({ 
-      driverId, 
-      status: { $in: ['preparing','ready_for_pickup','out_for_delivery'] }})
+    const orders = await Order.find({
+      driverId,
+      status: { $in: ['preparing', 'ready_for_pickup', 'out_for_delivery'] }
+    })
       .populate('restaurantId', 'name address')
       .populate('userId', 'name address');
     const updated = orders.map(o => ({
@@ -129,33 +130,50 @@ router.get('/orders/pending', async (req, res) => {
 });
 
 
+// Mark order as delivered and sync with restaurant dashboard
 router.post('/orders/delivered/:id', async (req, res) => {
   try {
+    const driverId = req.session.driverId;
+    if (!driverId) {
+      return res.status(401).json({ error: 'Not logged in' });
+    }
+
     const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // Prevent marking delivered unless it's actually out for delivery
-    if (order.status !== 'out_for_delivery') {
-      return res.status(400).json({ error: 'Cannot mark as delivered until restaurant marks it out for delivery' });
+    // Relax restriction — allow marking delivered even if restaurant missed "Out for Delivery"
+    if (order.status === 'delivered') {
+      return res.json({ message: 'Order already delivered', order });
+    }
+
+    // if it's still "preparing" or "ready_for_pickup", gently bump to "delivered"
+    const allowedStatuses = ['preparing', 'ready_for_pickup', 'out_for_delivery'];
+    if (!allowedStatuses.includes(order.status)) {
+      console.warn(`⚠️ Order ${order._id} status ${order.status} force-updated to delivered`);
     }
 
     order.status = 'delivered';
+    order.driverId = driverId;
+    order.deliveredAt = new Date();
+
     await order.save();
 
-    // expire active challenge sessions
+    // Also expire any linked challenge session (Judge0 side)
     await ChallengeSession.updateMany(
-      { orderId: req.params.id, status: "ACTIVE" },
+      { orderId: order._id, status: "ACTIVE" },
       { $set: { status: "EXPIRED", expiresAt: new Date() } }
     );
 
-    res.json({ message: 'Order marked as delivered', order });
+    console.log(`✅ Order ${order._id} marked delivered by driver ${driverId}`);
+    res.json({ ok: true, message: 'Order marked as delivered', order });
   } catch (err) {
-    console.error("❌ Error marking order delivered:", err);
-    res.status(500).send('Error marking delivered');
+    console.error("❌ Error marking delivered:", err);
+    res.status(500).json({ error: 'Server error marking delivered' });
   }
 });
+
 
 
 
