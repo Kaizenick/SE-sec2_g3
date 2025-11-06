@@ -2,12 +2,41 @@
   <a href="https://doi.org/10.5281/zenodo.17544828">
     <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17544828.svg" alt="DOI" />
   </a>
-  <img src="https://github.com/Divyaka9/SE-sec2_g3/actions/workflows/ci.yml/badge.svg" alt="Build Status" />
-  <img src="https://img.shields.io/badge/coverage-~79%25-green" alt="Coverage" />
-  <img src="https://img.shields.io/badge/tests-pytest%20%7C%20jest-blue" alt="Tests" />
-  <img src="https://img.shields.io/badge/formatter-Prettier-ff69b4?logo=prettier" alt="Prettier Formatter" />
-  <img src="https://img.shields.io/badge/formatter-Black-000000?logo=python" alt="Black Formatter" />
-  <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
+  
+  <!-- DOI -->
+  <a href="https://doi.org/10.5281/zenodo.17544828">
+    <img src="https://zenodo.org/badge/DOI/10.5281/zenodo.17544828.svg" alt="DOI" />
+  </a>
+
+  <!-- CI Status -->
+  <a href="https://github.com/Divyaka9/SE-sec2_g3/actions">
+    <img src="https://github.com/Divyaka9/SE-sec2_g3/actions/workflows/ci.yml/badge.svg" alt="Judge0 CI Tests" />
+  </a>
+
+  <!-- Coverage -->
+  <a href="https://github.com/Divyaka9/SE-sec2_g3/tree/main">
+    <img src="https://img.shields.io/badge/coverage-~79%25-green" alt="Coverage" />
+  </a>
+
+  <!-- Judge0 Testing -->
+  <a href="[https://github.com/Divyaka9/SE-sec2_g3/tree/main](https://github.com/Divyaka9/SE-sec2_g3/tree/main/proj2/judge0-frontend/src/__tests__)">
+    <img src="https://img.shields.io/badge/tests-pytest%20%7C%20jest-blue" alt="Tests: pytest | jest" />
+  </a>
+
+  <!-- Food Delivery Testing -->
+  <a href="[https://github.com/Divyaka9/SE-sec2_g3/tree/main/proj2/food-delivery/tests)">
+    <img src="https://img.shields.io/badge/tests-jest-pink" alt="Tests: jest" />
+  </a>
+
+  <!-- Black -->
+  <a href="https://black.readthedocs.io/">
+    <img src="https://img.shields.io/badge/formatter-Black-000000?logo=python" alt="Black Formatter" />
+  </a>
+
+  <!-- License -->
+  <a href="https://github.com/Divyaka9/SE-sec2_g3/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" />
+  </a>
 </p>
 
 <p align="center">
