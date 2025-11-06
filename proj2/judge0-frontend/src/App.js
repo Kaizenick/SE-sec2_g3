@@ -119,9 +119,9 @@ function useInjectFonts() {
 }*/
 
 const rewardMap = {
-  easy: { symbol: "🍩", cashback: "$5 Cashback", prefix: "EASY" },
-  medium: { symbol: "🍕", cashback: "$10 Cashback", prefix: "MEDIUM" },
-  hard: { symbol: "🍔", cashback: "$20 Cashback", prefix: "HARD" },
+  easy: { symbol: "🍩", cashback: "5% Cashback", prefix: "EASY" },
+  medium: { symbol: "🍕", cashback: "10% Cashback", prefix: "MEDIUM" },
+  hard: { symbol: "🍔", cashback: "20% Cashback", prefix: "HARD" },
 };
 
 const languageMap = { python: 71, cpp: 54, java: 62, javascript: 63 };

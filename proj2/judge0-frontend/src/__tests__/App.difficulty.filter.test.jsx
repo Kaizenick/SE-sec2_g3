@@ -26,8 +26,8 @@ async function expectBannerForDifficulty(diffLabel) {
     within(banner).getByText(new RegExp(diffLabel, 'i'))
   ).toBeInTheDocument();
 
-  // 2) shows a dollar value like "$20"
-  expect(within(banner).getByText(/\$\d+/)).toBeInTheDocument();
+  // 2) shows a percent value like "20%"
+  expect(within(banner).getByText(/\d+%/)).toBeInTheDocument();
 }
 
 test('cashback banner reflects selected difficulty and shows a dollar amount', async () => {
