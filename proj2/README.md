@@ -1,6 +1,7 @@
-[![DOI](https://zenodo.org/badge/1048660183.svg)](https://doi.org/10.5281/zenodo.17544828)
-
 <p align="center">
+  <a href="https://doi.org/10.5281/zenodo.17544828">
+    <img src="https://zenodo.org/badge/1048660183.svg" alt="DOI" />
+  </a>
   <img src="https://github.com/Divyaka9/SE-sec2_g3/actions/workflows/ci.yml/badge.svg" alt="Build Status" />
   <img src="https://img.shields.io/badge/coverage-~79%25-green" alt="Coverage" />
   <img src="https://img.shields.io/badge/tests-pytest%20%7C%20jest-blue" alt="Tests" />
