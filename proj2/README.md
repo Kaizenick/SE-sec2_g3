@@ -27,7 +27,8 @@
 **BiteCode** brings together food delivery and competitive programming in a unique, gamified experience.  
 **Bite** allows users and competitive programmers to **order food and earn rewards** — getting **discounts on every order** through quick problem-solving challenges.  
 
-After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to 15% off** your order!  
+After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to 20% off** your order!  
+
 It’s where every byte earns you a bite!
 
 ---
