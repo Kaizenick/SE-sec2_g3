@@ -29,6 +29,20 @@ router.patch("/active", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// GET /api/driver/status → returns active state
+router.get("/status", async (req, res) => {
+  try {
+    const driverId = req.session.driverId;
+    if (!driverId) return res.status(401).json({ ok: false });
+
+    const driver = await Driver.findById(driverId);
+    if (!driver) return res.status(404).json({ ok: false });
+
+    res.json({ ok: true, isActive: driver.isActive });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
 
 router.get('/orders/new', async (req, res) => {
   try {
@@ -50,7 +64,7 @@ router.get('/orders/new', async (req, res) => {
 
     //If active, show available orders
     const orders = await Order.find({
-      status: { $in: ["placed", "preparing", "ready_for_pickup"] },
+      status: { $in: ["preparing", "ready_for_pickup"] },
       driverId: null
     })
       .populate('restaurantId', 'name address') // pickup location
@@ -77,7 +91,7 @@ router.post('/orders/accept/:id', async (req, res) => {
     const driverId = req.session.driverId;
     const order = await Order.findOneAndUpdate(
       { _id: req.params.id, driverId: null },   // only if still unassigned
-      { driverId, status: 'out_for_delivery', deliveryPayment: 5 },
+      { driverId, deliveryPayment: 5 },
       { new: true }
     );
 
@@ -97,7 +111,9 @@ router.post('/orders/accept/:id', async (req, res) => {
 router.get('/orders/pending', async (req, res) => {
   try {
     const driverId = req.session.driverId;
-    const orders = await Order.find({ driverId, status: 'out_for_delivery' })
+    const orders = await Order.find({ 
+      driverId, 
+      status: { $in: ['preparing','ready_for_pickup','out_for_delivery'] }})
       .populate('restaurantId', 'name address')
       .populate('userId', 'name address');
     const updated = orders.map(o => ({
@@ -115,16 +131,32 @@ router.get('/orders/pending', async (req, res) => {
 
 router.post('/orders/delivered/:id', async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, { status: 'delivered' });
-    res.json({ message: 'Order marked as delivered', order });
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Prevent marking delivered unless it's actually out for delivery
+    if (order.status !== 'out_for_delivery') {
+      return res.status(400).json({ error: 'Cannot mark as delivered until restaurant marks it out for delivery' });
+    }
+
+    order.status = 'delivered';
+    await order.save();
+
+    // expire active challenge sessions
     await ChallengeSession.updateMany(
       { orderId: req.params.id, status: "ACTIVE" },
       { $set: { status: "EXPIRED", expiresAt: new Date() } }
     );
+
+    res.json({ message: 'Order marked as delivered', order });
   } catch (err) {
+    console.error("❌ Error marking order delivered:", err);
     res.status(500).send('Error marking delivered');
   }
 });
+
 
 
 router.get('/payments', async (req, res) => {

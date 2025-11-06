@@ -565,7 +565,7 @@ function cancelEdit(id) {
             <div class="mt-3 d-flex gap-2">
               <button class="btn btn-sm btn-outline-secondary" ${disabled} onclick="updateOrderStatus('${o._id}','preparing')">Mark Preparing</button>
               <button class="btn btn-sm btn-warning" ${disabled} onclick="updateOrderStatus('${o._id}','ready_for_pickup')">Ready for Pickup</button>
-              <!-- <button class="btn btn-sm btn-outline-primary" ${disabled} onclick="updateOrderStatus('${o._id}','out_for_delivery')">Out for Delivery</button> -->
+              <button class="btn btn-sm btn-outline-primary" ${disabled} onclick="updateOrderStatus('${o._id}','out_for_delivery')">Out for Delivery</button>
             </div>
         </div>
       </div>`;

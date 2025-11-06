@@ -217,7 +217,14 @@
             <p><b>Pickup:</b> ${o.restaurantLocation || 'N/A'}</p>
             <p><b>Delivery:</b> ${o.customerLocation || o.deliveryLocation || 'N/A'}</p>
             <p><b>Placed At:</b> ${new Date(o.createdAt).toLocaleString()}</p>
-            <button class="btn btn-primary" onclick="markDelivered('${o._id}')">Mark Delivered</button>
+            <p><b>Status:</b> ${o.status}</p>
+            <button 
+              class="btn btn-primary" 
+              onclick="markDelivered('${o._id}')" 
+              ${o.status !== 'out_for_delivery' ? 'disabled title="Waiting for restaurant to mark Out for Delivery"' : ''}>
+              Mark Delivered
+            </button>
+
           </div>`).join('')
         : `<p class="text-muted">No pending deliveries.</p>`;
     }
@@ -258,20 +265,62 @@
     });
 
     // === Initialize Driver Dashboard ===
-    async function initDriverDashboard() {
+    // async function initDriverDashboard() {
+    //   const res = await fetch("/api/driver/me", { credentials: "include" });
+    //   const data = await res.json();
+
+    //   if (data.ok) {
+    //     document.querySelector("h2.fw-bold").textContent = `Welcome, ${data.driverName}!`;
+    //     const driverRes = await fetch(`/api/drivers/${data.driverId}`, { credentials: "include" });
+    //     const info = await driverRes.json();
+    //     activeSwitch.checked = info.isActive;
+    //     setDriverActive(info.isActive);
+    //   }
+
+    //   loadPending();
+    // }
+
+      async function initDriverDashboard() {
+    try {
+      // Get session info
       const res = await fetch("/api/driver/me", { credentials: "include" });
       const data = await res.json();
 
-      if (data.ok) {
-        document.querySelector("h2.fw-bold").textContent = `Welcome, ${data.driverName}!`;
-        const driverRes = await fetch(`/api/drivers/${data.driverId}`, { credentials: "include" });
-        const info = await driverRes.json();
-        activeSwitch.checked = info.isActive;
-        setDriverActive(info.isActive);
+      if (!data.ok) {
+        document.querySelector("h2.fw-bold").textContent = "Not logged in";
+        return;
       }
 
+      // Personalize greeting
+      document.querySelector("h2.fw-bold").textContent = `Welcome, ${data.driverName}!`;
+
+      // Fetch persisted active status from backend
+      const statusRes = await fetch(`${API_BASE}/driver/status`, { credentials: "include" });
+      const statusData = await statusRes.json();
+
+      if (statusData.ok) {
+        activeSwitch.checked = statusData.isActive;
+        setDriverActive(statusData.isActive);
+      } else {
+        activeSwitch.checked = false;
+        setDriverActive(false);
+      }
+
+      // Load current pending deliveries
       loadPending();
+
+      // // Restore last open tab (optional — after DOMContentLoaded)
+      // const lastTab = localStorage.getItem("driverDashboardActiveTab");
+      // if (lastTab) {
+      //   const tabEl = document.getElementById(lastTab);
+      //   if (tabEl) new bootstrap.Tab(tabEl).show();
+      // }
+
+    } catch (err) {
+      console.error("❌ Error initializing driver dashboard:", err);
     }
+  }
+
 
     // === Payments Section ===
     document.getElementById('dateForm').addEventListener('submit', async e => {
@@ -337,6 +386,28 @@
 
     document.getElementById('new-tab').addEventListener('shown.bs.tab', loadNewOrders);
     document.getElementById('pending-tab').addEventListener('shown.bs.tab', loadPending);
+
+    // === Preserve Active Tab Between Reloads ===
+    const tabKey = "driverDashboardActiveTab";
+
+    // Save which tab was last opened
+    document.querySelectorAll('#myTab .nav-link').forEach(tab => {
+      tab.addEventListener('shown.bs.tab', e => {
+        localStorage.setItem(tabKey, e.target.id);
+      });
+    });
+
+    // Restore it when page reloads
+    window.addEventListener('DOMContentLoaded', () => {
+      const lastTab = localStorage.getItem(tabKey);
+      if (lastTab) {
+        const tabEl = document.getElementById(lastTab);
+        if (tabEl) {
+          const tab = new bootstrap.Tab(tabEl);
+          tab.show();
+        }
+      }
+    });
 
     initDriverDashboard();
   </script>

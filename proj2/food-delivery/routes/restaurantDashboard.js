@@ -187,7 +187,7 @@ router.delete("/menu/:id", requireRestaurant, async (req, res) => {
   }
 });
 
-// Update order status
+// // Update order status
 // router.put("/order/:id/status", requireRestaurant, async (req, res) => {
 //   try {
 //     const { status } = req.body;
@@ -213,7 +213,7 @@ router.patch("/orders/:id/status", async (req, res) => {
     }
 
     // Restrict restaurant's allowed statuses
-    const allowedStatuses = ["preparing", "ready_for_pickup"];
+    const allowedStatuses = ["preparing", "ready_for_pickup",  "out_for_delivery"];
     if (!allowedStatuses.includes(status)) {
       return res.status(403).json({ error: "Unauthorized status update" });
     }
