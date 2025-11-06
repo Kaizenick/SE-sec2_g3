@@ -1,9 +1,10 @@
 import express from "express";
 import mongoose from "mongoose";
+
 import Order from "../models/Order.js";
 import CartItem from "../models/CartItem.js";
 import Restaurant from "../models/Restaurant.js";
-import MenuItem from "../models/MenuItem.js";
+import MenuItem from "../models/MenuItem.js";   // correct relative path
 import Coupon from "../models/Coupon.js";
 
 const router = express.Router();
@@ -19,14 +20,12 @@ router.get("/", async (req, res) => {
       return res.status(401).json({ message: "Not logged in" });
     }
 
-    // fetch orders sorted by creation date
     const orders = await Order.find({ userId: customerId })
       .populate("items.menuItemId")
       .sort({ createdAt: -1 })
       .lean();
 
-    // explicitly ensure challengeStatus and appliedCode fields are sent
-    const enriched = orders.map(o => ({
+    const enriched = orders.map((o) => ({
       ...o,
       challengeStatus: o.challengeStatus || "NOT_STARTED",
       appliedCode: o.appliedCode || null,
@@ -59,9 +58,12 @@ router.post("/", async (req, res) => {
       // safely cast to ObjectIds
       itemIds = itemIds
         .filter(Boolean)
-        .map(id => {
-          try { return new mongoose.Types.ObjectId(id); }
-          catch { return null; }
+        .map((id) => {
+          try {
+            return new mongoose.Types.ObjectId(id);
+          } catch {
+            return null;
+          }
         })
         .filter(Boolean);
 
@@ -83,34 +85,29 @@ router.post("/", async (req, res) => {
     }
 
     // 🧩 Fetch authoritative menu data (both available & unavailable)
-    const menuIds = cartItems.map(ci => ci.menuItemId);
+    const menuIds = cartItems.map((ci) => ci.menuItemId);
     const allMenuItems = await MenuItem.find({ _id: { $in: menuIds } }).lean();
 
-    // 🛑 Detect unavailable items
-    const unavailableItems = allMenuItems.filter(m => !m.isAvailable);
+    // 🛑 Detect unavailable/out-of-stock items (support both flags)
+    const unavailableItems = allMenuItems.filter(
+      (m) => m?.isAvailable === false || m?.inStock === false
+    );
     if (unavailableItems.length) {
-      const names = unavailableItems.map(m => m.name || "Unknown item");
-
-      // // Optional: auto-remove them from cart
-      // await CartItem.deleteMany({
-      //   userId: customerId,
-      //   menuItemId: { $in: unavailableItems.map(m => m._id) }
-      // });
-
+      const names = unavailableItems.map((m) => m?.name || "Unknown item");
       return res.status(400).json({
         error: "Some selected items are unavailable and were removed from your cart.",
-        unavailableItems: names
+        unavailableItems: names,
       });
     }
 
-    // ✅ Proceed only with available items
-    const menuItems = allMenuItems.filter(m => m.isAvailable);
-    const menuMap = new Map(menuItems.map(m => [String(m._id), m]));
+    // ✅ Only keep available items
+    const menuItems = allMenuItems.filter((m) => m?.isAvailable !== false && m?.inStock !== false);
+    const menuMap = new Map(menuItems.map((m) => [String(m._id), m]));
 
     // Derive restaurant IDs from menu items
     const restIdSet = new Set(
       cartItems
-        .map(ci => {
+        .map((ci) => {
           const mi = menuMap.get(String(ci.menuItemId));
           return mi?.restaurantId ? String(mi.restaurantId) : undefined;
         })
@@ -132,7 +129,7 @@ router.post("/", async (req, res) => {
 
     // ✅ Build order lines and compute totals
     let subtotal = 0;
-    const items = cartItems.map(ci => {
+    const items = cartItems.map((ci) => {
       const mi = menuMap.get(String(ci.menuItemId));
       const price = Number(mi?.price ?? 0);
       const qty = Number(ci.quantity ?? 1);
@@ -157,7 +154,6 @@ router.post("/", async (req, res) => {
         expiresAt: { $gt: new Date() },
       });
       if (coupons.length) {
-        // pick highest discount %
         coupons.sort((a, b) => (b.discountPct || 0) - (a.discountPct || 0));
         const best = coupons[0];
         discount = Math.round(subtotal * (best.discountPct / 100));
@@ -182,7 +178,7 @@ router.post("/", async (req, res) => {
       appliedCode,
       total,
       status: "placed",
-      paymentStatus: "paid"
+      paymentStatus: "paid",
     });
 
     // 🧹 Clear checked-out items from cart
