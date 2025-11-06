@@ -37,7 +37,7 @@
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/jest/jest-plain.svg" alt="Jest" width="45" height="45"/>
 </p>
 
-# 🍽️ BiteCode Platform
+# 🍽️ A Quick Start Guide to BiteCode
 
 **BiteCode** brings together food delivery and competitive programming in a unique, gamified experience. 
 
