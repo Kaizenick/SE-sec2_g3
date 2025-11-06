@@ -24,8 +24,9 @@
 
 # 🍽️ BiteCode Platform
 
-**BiteCode** brings together food delivery and competitive programming in a unique, gamified experience.  
-**Bite** allows users and competitive programmers to **order food and earn rewards** — getting **discounts on every order** through quick problem-solving challenges.  
+**BiteCode** brings together food delivery and competitive programming in a unique, gamified experience. 
+
+It allows users and competitive programmers to **order food and earn rewards** — getting **discounts on every order** through quick problem-solving challenges.  
 
 After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to 20% off** your order!  
 
@@ -48,6 +49,12 @@ It combines two main components:
    This module handles the challenge portion — validating code submissions and dynamically calculating rewards or discounts based on user performance.
 
 The repository also includes an **Archived** directory that stores earlier prototypes, development scripts, and reference materials used during the design phase.
+
+---
+
+## 🖥️ Demo
+
+[![Watch the demo](https://img.youtube.com/vi/nOuNoA7Y1ng/hqdefault.jpg)](https://youtu.be/nOuNoA7Y1ng)
 
 ---
 
