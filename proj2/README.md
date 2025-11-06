@@ -27,14 +27,14 @@
 **BiteCode** brings together food delivery and competitive programming in a unique, gamified experience.  
 **Bite** allows users and competitive programmers to **order food and earn rewards** — getting **discounts on every order** through quick problem-solving challenges.  
 
-After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to $20 off** your order!  
-It’s where delicious bites meet brilliant code.
+After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to 15% off** your order!  
+It’s where every byte earns you a bite!
 
 ---
 
 ## 🚀 Overview
 
-BiteCode was developed as part of a Software Engineering project to demonstrate the design and implementation of an interactive, dual-purpose web platform.
+BiteCode has been developed as part of CSC510 - Software Engineering project at NC State University to demonstrate the design and implementation of an interactive, dual-purpose web platform.
 
 It combines two main components:
 
@@ -139,7 +139,7 @@ You can modify `src/config.js` to point to your own hosted Judge0 instance.
 
 ### 💻 Judge0 Frontend (Code)
 - Compile and execute code in real time  
-- Supports multiple languages (Python, C, C++, Java, etc.)  
+- Supports multiple languages (Python, C++, Java and JavaScript as of now)  
 - Validate against predefined test cases  
 - Reward/discount calculation based on correctness and time  
 - Built using modular React components and REST API integration
@@ -197,20 +197,31 @@ The name is unique, created specifically for this project, and free from any kno
 
 | Name | Email id  |
 |------| ----------|
-| Soham Deshpande | sdeshpa5@ncsu.edu |
-| Divya Kannan | |
-| Tejas | |
-| Mehek | |
+| Soham Sarang Deshpande | sdeshpa5@ncsu.edu |
+| Divya Kannan | dkannan2@ncsu.edu |
+| Tejas Pavular Ramesh | tpavula@ncsu.edu |
+| Mahek Kantharia | mrkantha@ncsu.edu |
+
+---
+
+## ✨ Achieved Milestones
+- Developed a complete multi-role food delivery system supporting customers, restaurants, and drivers, with seamless order creation, assignment, and fulfillment workflows.
+- Integrated a coding challenge micro-platform (Judge0) that dynamically generates cashback or coupon rewards based on challenge difficulty and user performance.
+- Engineered automated coupon application logic — earned rewards are stored, validated, and directly applied during checkout for the next food order.
+- Designed responsive, role-specific dashboards for restaurants, drivers, and customers with intuitive interfaces for menu management, order tracking, and payment processing.
+- Implemented modular backend architecture using Express + MongoDB with clean separation of routes, models, and configurations, ensuring scalability and ease of testing.
 
 ---
 
 ## 🏁 Future Enhancements
 
+- Adaptive Challenge Difficulty: Adjust coding task levels based on order frequency and past performance.
+- Hook up your chess engine, share your toughest positions, and let players earn rewards solving them!
+- Geolocation Tracking: Enable live driver location and delivery ETA via Google Maps integration.
+- UI/UX & Stability Enhancements: Improve responsiveness, consistency, and overall performance across dashboards.
+- Payment & Security Upgrades: Strengthen payment flows with verification, refunds, and secure logging.
 - Unified login system for both modules (SSO)  
-- Personalized challenge difficulty and adaptive discounts  
-- Delivery tracking dashboard with integrated countdown timer  
 - Mobile-friendly PWA version  
-- Case studies and demo videos showcasing real-world usage
 
 ---
 
@@ -230,4 +241,4 @@ Open an issue or submit a pull request to help improve **BiteCode**.
 
 ---
 
-*Where food meets code, and every bite can make you smarter.*
+*Because coding's better with curry :)*
