@@ -9,6 +9,8 @@
     "dev": "node server.js",
     "seed": "node seed/seed.js",
     "seed:admins": "node seed/seed_admins.js",
+    "seed:demo6": "node seed/seed_demo6.js",
+    "seed:demo6:admins": "node seed/seed_demo6_admins.js",
     "test": "cross-env NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
