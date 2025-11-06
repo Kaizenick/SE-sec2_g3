@@ -388,9 +388,9 @@ function App() {
           const msg = data?.error || "Session expired or invalid.";
           setModalMsg(`❌ ${msg}\n\nTime to eat — better luck next time! 🍔`);
           setModalOpen(true);
-          setTimeout(() => {
-            try { window.close(); } catch { }
-          }, 2000);
+          //setTimeout(() => {
+          //  try { window.close(); } catch { }
+          //}, 2000);
 
           return;
         }
@@ -403,6 +403,7 @@ function App() {
           `💳 Coupon Code: ${data.code}\n\n` +
           `It’s automatically saved to your account for your next order.`
         );
+        setModalTitle("Challenge Completed!");
         setModalOpen(true);
         setTimeout(() => {
           try { window.close(); } catch { }
