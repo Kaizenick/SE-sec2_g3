@@ -7,13 +7,13 @@ The following is a set of guidelines for contributing to BiteCode, adapted from 
 ---
 
 ## 🧭 Table of Contents
-1. [How Can I Contribute?](#how-can-i-contribute)
-2. [Code of Conduct](#code-of-conduct)
-3. [Reporting Bugs](#reporting-bugs)
-4. [Suggesting Enhancements](#suggesting-enhancements)
-5. [Development Setup](#development-setup)
-6. [Pull Request Process](#pull-request-process)
-7. [Style Guide](#style-guide)
+1. How Can I Contribute?
+2. Code of Conduct
+3. Reporting Bugs
+4. Suggesting Enhancements
+5. Development Setup
+6. Pull Request Process
+7. Style Guide
 
 ---
 
