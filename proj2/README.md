@@ -1,0 +1,203 @@
+# 🍽️ BiteCode Platform
+
+**BiteCode** brings together food delivery and competitive programming in a unique, gamified experience.  
+**Bite** allows users and competitive programmers to **order food and earn rewards** — getting **discounts on every order** through quick problem-solving challenges.  
+
+After placing an order, the clock starts ticking ⏱️ — **solve a coding question before your delivery partner arrives** to earn **up to $20 off** your order!  
+It’s where delicious bites meet brilliant code.
+
+---
+
+## 🚀 Overview
+
+BiteCode was developed as part of a Software Engineering project to demonstrate the design and implementation of an interactive, dual-purpose web platform.
+
+It combines two main components:
+
+1. **Food Delivery Application**  
+   A full-stack web app built using **MongoDB, Express.js, React, and Node.js (MERN)**.  
+   It enables users to discover restaurants, browse menus, place orders, and participate in timed coding challenges that unlock instant rewards.
+
+2. **Judge0 Frontend**  
+   A React-based interface powered by the open-source **Judge0 API**, used to compile and execute code in real time.  
+   This module handles the challenge portion — validating code submissions and dynamically calculating rewards or discounts based on user performance.
+
+The repository also includes an **Archived** directory that stores earlier prototypes, development scripts, and reference materials used during the design phase.
+
+---
+
+## 👥 Intended Users
+
+- **Foodies & Customers** – who want to enjoy meals while participating in quick coding challenges to earn discounts.  
+- **Competitive Programmers** – who love solving problems under real-world time pressure (literally racing the delivery timer).  
+- **Developers & Students** – interested in exploring full-stack application design and API integration.  
+- **Educators** – who want to adapt the concept into interactive classroom experiences combining logic and engagement.
+
+---
+
+## 🧩 Repository Structure
+
+```
+proj2/
+│
+├── food-delivery/               # MERN-based gamified food ordering system
+│   ├── backend/                 # Express.js + MongoDB API for users, orders & rewards
+│   ├── public/                  # Static assets (logos, images, icons)
+│   ├── src/                     # React frontend components
+│   │   ├── components/          # Reusable UI parts (Navbar, MenuCard, Cart, etc.)
+│   │   ├── pages/               # Page-level views (Home, Menu, Checkout, Rewards)
+│   │   ├── hooks/               # Custom React hooks (auth, cart, etc.)
+│   │   ├── context/             # React context providers for state management
+│   │   └── utils/               # Helper functions & constants
+│   ├── seed/                    # Database seeding scripts (restaurant & menu data)
+│   ├── package.json             # Dependencies and scripts
+│   └── README.md                # Submodule-specific instructions
+│
+├── judge0-frontend/             # Interactive coding challenge platform
+│   ├── public/                  # Static HTML & assets
+│   ├── src/                     # React frontend source
+│   │   ├── components/          # Core UI (Editor, Output, TestCases)
+│   │   ├── services/            # API calls to Judge0 endpoints
+│   │   ├── tests/               # Jest + React Testing Library test cases
+│   │   ├── styles/              # CSS and theme files
+│   │   └── utils/               # Common helpers (language mappings, formatting)
+│   ├── package.json             # Dependencies and scripts
+│   └── README.md                # Documentation for setup and config
+│
+├── Archived/                    # Older versions, experiments, or deprecated code
+│   ├── legacy-frontend/         # Initial prototype of the frontend
+│   ├── old-scripts/             # Utility scripts used during testing
+│   └── notes/                   # Early design docs and drafts
+│
+├── .gitignore                   # Ignored files and directories
+├── package-lock.json            # Dependency lockfile
+├── README.md                    # Main project documentation (this file)
+└── LICENSE                      # Project license (academic use)
+```
+
+---
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the repository
+```bash
+git clone https://github.com/yourusername/proj2.git
+cd proj2
+```
+
+### 2️⃣ Setup the Food Delivery App
+```bash
+cd food-delivery
+npm install
+npm run dev
+```
+> Ensure MongoDB is running locally or update your `.env` with a valid connection URI.
+
+### 3️⃣ Setup the Judge0 Frontend
+```bash
+cd judge0-frontend
+npm install
+npm start
+```
+By default, it connects to the public Judge0 API.  
+You can modify `src/config.js` to point to your own hosted Judge0 instance.
+
+---
+
+## 🧠 Features
+
+### 🍴 Food Delivery (Bite)
+- Browse and search restaurants  
+- Place and track orders  
+- Earn real-time discounts by solving coding challenges  
+- Reward system integrated with checkout flow  
+- Admin features for menu & restaurant management
+
+### 💻 Judge0 Frontend (Code)
+- Compile and execute code in real time  
+- Supports multiple languages (Python, C, C++, Java, etc.)  
+- Validate against predefined test cases  
+- Reward/discount calculation based on correctness and time  
+- Built using modular React components and REST API integration
+
+---
+
+## 📘 Use Cases
+
+- **Gamified Ordering Experience:** Encourages logical thinking while waiting for food delivery.  
+- **Educational Demonstrations:** Showcase of API integration, real-time feedback, and gamification.  
+- **Developer Portfolio Project:** Highlights both full-stack and frontend engineering capabilities.  
+- **Future Startup Concept:** Potential to extend into a commercial “order-and-earn” app for tech communities.
+
+---
+
+## 🧑‍💻 Technology Stack
+
+| Category | Technologies |
+|-----------|--------------|
+| Frontend | React, Bootstrap, Axios |
+| Backend | Node.js, Express.js |
+| Database | MongoDB |
+| APIs | Judge0 (Open Source Execution API) |
+| Testing | Jest, React Testing Library, pytest |
+| Dev Tools | npm, Git, VS Code |
+| DevOps Tools | Docker |
+
+---
+
+## 📂 Archived Work
+
+The `Archived` directory includes:
+- Early experimental versions of the platform  
+- Prototype scripts and local testing setups  
+- Documentation drafts and design iterations  
+
+Preserved to trace the project’s evolution and serve as learning reference material.
+
+---
+
+## 🧾 Naming & Branding
+
+The name **BiteCode** is an original, non-commercial creation that combines the ideas of *food (“bite”)* and *coding (“code”)* — symbolizing the perfect blend of culinary enjoyment and intellectual challenge.  
+It is unique and free from known trademark conflicts.
+
+---
+
+## 🧑‍🤝‍🧑 Contributors
+
+| Name | Email id  |
+|------| ----------|
+| Soham Deshpande | sdeshpa5@ncsu.edu |
+| Divya Kannan | |
+| Tejas | |
+| Mehek | |
+
+---
+
+## 🏁 Future Enhancements
+
+- Unified login system for both modules (SSO)  
+- Personalized challenge difficulty and adaptive discounts  
+- Delivery tracking dashboard with integrated countdown timer  
+- Mobile-friendly PWA version  
+- Case studies and demo videos showcasing real-world usage
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License** — you’re free to use, modify, and distribute this software, provided that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
+
+See the [LICENSE](./LICENSE) file for more details.
+
+
+---
+
+### 💬 Feedback
+
+We welcome feedback, bug reports, and suggestions!  
+Open an issue or submit a pull request to help improve **BiteCode**.
+
+---
+
+*Where food meets code, and every bite can make you smarter.*
