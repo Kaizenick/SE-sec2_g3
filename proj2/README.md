@@ -99,6 +99,7 @@ The repository also includes an **Archived** directory that stores earlier proto
 ---
 
 ## 🌟 Why Choose Our Project?
+[![Watch the demo](https://img.youtube.com/vi/kKXPadUnOhY/hqdefault.jpg)](https://youtu.be/kKXPadUnOhY)
 
 Our project — **BiteCode** — blends **Food Delivery**, **Gamified Coding Challenges**, and an **Interactive Judge0 Frontend** into one cohesive full-stack system.  
 It’s not just a project to run — it’s a project you can *grow*, *extend*, and *learn from*.
