@@ -22,6 +22,12 @@
   <!-- License -->
   <a href="https://github.com/Divyaka9/SE-sec2_g3/blob/main/LICENSE">
     <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License" />
+    <img src="https://img.shields.io/badge/formatter-Prettier-ff69b4?logo=prettier" alt="Prettier Formatter" />
+    <img src="https://img.shields.io/badge/formatter-Black-000000?logo=python" alt="Black Formatter" />
+    <img src="https://img.shields.io/badge/syntax-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint Syntax Checker" />
+    <img src="https://img.shields.io/badge/syntax-PyLint-3776AB?logo=python&logoColor=white" alt="PyLint Syntax Checker" />
+    <img src="https://img.shields.io/badge/syntax-Flake8-000000?logo=python&logoColor=white" alt="Flake8 Syntax Checker" />
+
   </a>
 </p>
 
