@@ -151,9 +151,9 @@ npm start
 **Key NPM scripts** (see `package.json`):
 - `dev`, `start` — run Express server
 - `seed`, `seed:admins`, `seed:demo6`, `seed:demo6:admins` — data seeders
-- `test`, `test:cov` — Jest node tests (Supertest, in-memory Mongo)
-- `test:fe`, `test:fe:cov` — jsdom tests for `/public` UI
-- `test:e2e`, `test:e2e:headed`, `test:e2e:ui` — Playwright specs
+- `test` — Jest node tests (Supertest, in-memory Mongo)
+- `test:fe` — jsdom tests for UI
+- `test:e2e` — Playwright specs
 
 ---
 
@@ -162,15 +162,6 @@ npm start
 **Unit/Integration (Jest + Supertest)**  
 - Configuration: `jest.config.mjs`  
 - Harness: `tests/helpers/testUtils.js` (spins up `mongodb-memory-server`, mounts `server.js`, and returns a `supertest` agent).  
-- Typical test:
-  ```js
-  import request from 'supertest';
-  import { setupTestDB, getApp } from '../helpers/testUtils.js';
-  beforeAll(setupTestDB);
-  test('GET /api/customer-auth/me unauth => 401', async () => {
-    const app = getApp();
-    await request(app).get('/api/customer-auth/me').expect(401);
-  });
   ```
 
 **Frontend DOM/UI (Jest + jsdom)**  
@@ -178,13 +169,10 @@ npm start
 - Targets pages under `/public` (e.g., navbar links, cart UI behaviors).
 
 **End-to-end (Playwright)**  
-- Location: `tests/e2e/` (if present in your branch)  
+- Location: `tests/e2e/`
 - Run locally:
   ```bash
   npm run test:e2e
-  # optional: GUI
-  npm run test:e2e:ui
-  ```
 
 ---
 
@@ -218,7 +206,7 @@ npm start
 
 ## 🔐 Demo Logins
 
-After running seeders, open `seed/seeded_restaurant_credentials.csv` for **stable** restaurant demo emails/passwords. This file is kept constant by the seeders to support automated tests and demos.
+After running seeders, open `seed/seeded_restaurant_credentials.csv` for restaurant demo emails/passwords. This file is kept constant by the seeders to support automated tests and demos.
 
 ---
 
@@ -226,8 +214,6 @@ After running seeders, open `seed/seeded_restaurant_credentials.csv` for **stabl
 
 - Use Chrome DevTools **Network** tab to inspect API requests from `/public` pages.
 - Keep Playwright E2E independent of Jest by ignoring `tests/e2e` in `jest.config.mjs` (already configured).
-- For faster red/green cycles: run a single test file  
-  `npm test -- tests/restaurant/menumanagement.test.js`
 
 ---
 
