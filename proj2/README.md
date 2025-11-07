@@ -267,6 +267,7 @@ See the **[MIT License](../LICENSE)**. file for more details.
 
 We welcome feedback, bug reports, and suggestions!  
 Open an issue or submit a pull request to help improve **BiteCode**.
+Alternatively, users can also email us at **bitecodearena@gmail.com**.
 
 ---
 
